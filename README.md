@@ -1,0 +1,3 @@
+# nchu_ivslab
+for nchu master ivs blockchain lab
+This research aims to build a blockchain-based traceability platform to achieve sustainable development of enterprises in terms of ESG. The platform will help companies track the entire production process of products from raw materials to final products, ensuring environmentally friendly raw material procurement, socially responsible labor conditions, and enhanced corporate governance. By realizing the transparency of the supply chain, this study is expected to improve the performance of companies in terms of ESG and provide consumers with more information about the environmental and social impacts behind the products.
