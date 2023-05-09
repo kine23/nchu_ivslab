@@ -3,64 +3,11 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"os"
-	"strings"	
+
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/kine23/nchu_ivslab/ivs_contract/model"
 )
-
-var Logger = log.New(os.Stdout, "tools: ", log.Ldate|log.Ltime|log.Lshortfile)
-
-// 判斷是否為組織成員以及所屬用戶角色
-func IsAllowedOrgAndRole(ctx contractapi.TransactionContextInterface, allowedOrgs []string, allowedRoles []string) (bool, error) {
-    clientIdentity := ctx.GetClientIdentity()
-    mspID, err := clientIdentity.GetMSPID()
-    if err != nil {
-        Logger.Printf("Error getting MSP ID: %v", err)
-        return false, err
-    }
-    isAllowedOrg := false
-    for _, org := range allowedOrgs {
-        if mspID == org {
-            isAllowedOrg = true
-            break
-        }
-    }
-    if !isAllowedOrg {
-        Logger.Println("Client MSP ID is not in allowed organizations")
-        return false, nil
-    }
-    rolesAttributeValue, found, err := clientIdentity.GetAttributeValue("hf.Registrar.Roles")
-    if err != nil {
-        Logger.Printf("Error getting attribute value: ", err)
-        return false, err
-    }
-    isAllowedRole := false
-    if found {
-        attrRoles := strings.Split(strings.ToLower(rolesAttributeValue), ",")
-        for _, role := range allowedRoles {
-            if contains(attrRoles, strings.ToLower(role)) {
-                isAllowedRole = true
-                break
-            }
-        }
-    }
-    if !isAllowedRole {
-        Logger.Println("Client does not have an allowed role")
-    }
-    return isAllowedRole, nil
-}
-
-func contains(arr []string, str string) bool {
-    for _, a := range arr {
-        if a == str {
-            return true
-        }
-    }
-    return false
-}
 
 // 根據查詢結果生成切片
 func ConstructResultByIterator[T interface{}](resultsIterator shim.StateQueryIteratorInterface) ([]*T, error) {
