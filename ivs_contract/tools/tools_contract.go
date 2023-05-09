@@ -29,7 +29,7 @@ func IsAllowedOrgAndRole(ctx contractapi.TransactionContextInterface, allowedOrg
         }
     }
     if !isAllowedOrg {
-        Logger.Info("Client MSP ID is not in allowed organizations")
+        Logger.Println("Client MSP ID is not in allowed organizations")
         return false, nil
     }
     rolesAttributeValue, found, err := clientIdentity.GetAttributeValue("hf.Registrar.Roles")
@@ -48,7 +48,7 @@ func IsAllowedOrgAndRole(ctx contractapi.TransactionContextInterface, allowedOrg
         }
     }
     if !isAllowedRole {
-        Logger.Info("Client does not have an allowed role")
+        Logger.Println("Client does not have an allowed role")
     }
     return isAllowedRole, nil
 }
