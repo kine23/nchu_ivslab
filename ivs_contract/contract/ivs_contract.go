@@ -15,22 +15,8 @@ type ProjectContract struct {
 
 // 判斷零件是否存在
 func (o *ProjectContract) Exists(ctx contractapi.TransactionContextInterface, index string) (bool, error) {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return false, err
-	}
-	if !isAllowed {
-		return false, fmt.Errorf("only members of the allowed organizations with the admin/peer role can check if a project exists")
-	}
-	
 	resByte, err := ctx.GetStub().GetState(index)
 	if err != nil {
-		tools.Logger.Printf("Error checking permission: ", err)
 		return false, fmt.Errorf("failed to read from world state: %v", err)
 	}
 
@@ -39,19 +25,6 @@ func (o *ProjectContract) Exists(ctx contractapi.TransactionContextInterface, in
 
 // 寫入新零件
 func (o *ProjectContract) Insert(ctx contractapi.TransactionContextInterface, pJSON string) error {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return err
-	}
-	if !isAllowed {
-		return fmt.Errorf("only members of the allowed organizations with the admin/peer role can check if a project exists")
-	}
-	
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
 	exists, err := o.Exists(ctx, tx.Index())
@@ -77,19 +50,6 @@ func (o *ProjectContract) Insert(ctx contractapi.TransactionContextInterface, pJ
 
 // 更新零件訊息
 func (o *ProjectContract) Update(ctx contractapi.TransactionContextInterface, pJSON string) error {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return err
-	}
-	if !isAllowed {
-		return fmt.Errorf("only members of the allowed organizations with the admin/peer role can check if a project exists")
-	}
-	
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
 
@@ -123,19 +83,6 @@ func (o *ProjectContract) Update(ctx contractapi.TransactionContextInterface, pJ
 
 // 刪除零件
 func (o *ProjectContract) Delete(ctx contractapi.TransactionContextInterface, pJSON string) error {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return err
-	}
-	if !isAllowed {
-		return fmt.Errorf("only members of the allowed organizations with the admin/peer role can check if a project exists")
-	}
-	
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
 
@@ -162,19 +109,6 @@ func (o *ProjectContract) Delete(ctx contractapi.TransactionContextInterface, pJ
 
 // 查詢指定零件紀錄
 func (o *ProjectContract) SelectByIndex(ctx contractapi.TransactionContextInterface, pJSON string) (*model.Project, error) {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return nil, err
-	}
-	if !isAllowed {
-		return nil, fmt.Errorf("only members of the allowed organizations with the admin/peer role can check if a project exists")
-	}
-	
 	tx := model.Project{}
 	json.Unmarshal([]byte(pJSON), &tx)
 	queryString := fmt.Sprintf(`{"selector":{"ID":"%s", "table":"project"}}`, tx.ID)
@@ -188,19 +122,6 @@ func (o *ProjectContract) SelectByIndex(ctx contractapi.TransactionContextInterf
 
 // 查詢所有紀錄
 func (o *ProjectContract) SelectAll(ctx contractapi.TransactionContextInterface) ([]*model.Project, error) {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer", "client"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return nil, err
-	}
-	if !isAllowed {
-		return nil, fmt.Errorf("only members of the allowed organizations with the organization member can check if a project exists")
-	}
-	
 	queryString := fmt.Sprintf(`{"selector":{"table":"project"}}`)
 	fmt.Println("select string: ", queryString)
 	return tools.SelectByQueryString[model.Project](ctx, queryString)
@@ -208,38 +129,12 @@ func (o *ProjectContract) SelectAll(ctx contractapi.TransactionContextInterface)
 
 // 依索引查詢數據
 func (o *ProjectContract) SelectBySome(ctx contractapi.TransactionContextInterface, key, value string) ([]*model.Project, error) {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer", "client"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return nil, err
-	}
-	if !isAllowed {
-		return nil, fmt.Errorf("only members of the allowed organizations with the organization member can check if a project exists")
-	}
-	
 	queryString := fmt.Sprintf(`{"selector":{"%s":"%s", "table":"project"}}`, key, value)
 	return tools.SelectByQueryString[model.Project](ctx, queryString)
 }
 
 // 多頁查詢所有數據
 func (o *ProjectContract) SelectAllWithPagination(ctx contractapi.TransactionContextInterface, pageSize int32, bookmark string) (string, error) {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer", "client"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return "", err
-	}
-	if !isAllowed {
-		return "", fmt.Errorf("only members of the allowed organizations with the organization member can check if a project exists")
-	}
-	
 	queryString := fmt.Sprintf(`{"selector":{"table":"project"}}`)
 	fmt.Println("select string: ", queryString, "pageSize: ", pageSize, "bookmark", bookmark)
 	res, err := tools.SelectByQueryStringWithPagination[model.Project](ctx, queryString, pageSize, bookmark)
@@ -250,19 +145,6 @@ func (o *ProjectContract) SelectAllWithPagination(ctx contractapi.TransactionCon
 
 // 按關鍵字多頁查詢
 func (o *ProjectContract) SelectBySomeWithPagination(ctx contractapi.TransactionContextInterface, key, value string, pageSize int32, bookmark string) (string, error) {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer", "client"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return "", err
-	}
-	if !isAllowed {
-		return "", fmt.Errorf("only members of the allowed organizations with the organization member can check if a project exists")
-	}
-	
 	queryString := fmt.Sprintf(`{"selector":{"%s":"%s","table":"project"}}`, key, value)
 	fmt.Println("select string: ", queryString, "pageSize: ", pageSize, "bookmark", bookmark)
 	res, err := tools.SelectByQueryStringWithPagination[model.Project](ctx, queryString, pageSize, bookmark)
@@ -273,19 +155,6 @@ func (o *ProjectContract) SelectBySomeWithPagination(ctx contractapi.Transaction
 
 // 按索引查詢數據歷史
 func (o *ProjectContract) SelectHistoryByIndex(ctx contractapi.TransactionContextInterface, pJSON string) (string, error) {
-	allowedOrgs := []string{"brandMSP", "securityMSP", "networkMSP", "cmosMSP", "videocodecMSP"}
-	allowedRole := []string{"admin", "peer", "client"}
-	
-	// 檢查權限
-	isAllowed, err := tools.IsAllowedOrgAndRole(ctx, allowedOrgs, allowedRole)
-	if err != nil {
-		tools.Logger.Printf("Error checking permission: %v", err)
-		return "", err
-	}
-	if !isAllowed {
-		return "", fmt.Errorf("only members of the allowed organizations with the organization member can check if a project exists")
-	}
-	
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
 	fmt.Println("select by tx: ", tx)
