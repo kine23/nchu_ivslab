@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	chaincode, err := contractapi.NewChaincode(&contract.UserContract{}, &contract.ProjectContract{})
+	chaincode, err := contractapi.NewChaincode(&contract.UserContract{}, &contract.IVSContract{})
 	if err != nil {
 		panic(err)
 	}
