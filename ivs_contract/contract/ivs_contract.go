@@ -1,4 +1,4 @@
-package contract
+package ivscontract
 
 import (
 	"encoding/json"
@@ -107,7 +107,7 @@ func (o *ProjectContract) Delete(ctx contractapi.TransactionContextInterface, pJ
 	return ctx.GetStub().DelState(indexKey)
 }
 
-// 查詢指定零件紀錄
+// SelectByIndex 根據提供的索引檢索項目
 func (o *ProjectContract) SelectByIndex(ctx contractapi.TransactionContextInterface, pJSON string) (*model.Project, error) {
 	tx := model.Project{}
 	json.Unmarshal([]byte(pJSON), &tx)
@@ -115,7 +115,7 @@ func (o *ProjectContract) SelectByIndex(ctx contractapi.TransactionContextInterf
 	fmt.Println("select string: ", queryString)
 	res, err := tools.SelectByQueryString[model.Project](ctx, queryString)
 	if len(res) == 0 {
-		return nil, err
+		return nil, fmt.Errorf("未找到具有指定索引的項目")
 	}
 	return res[0], err
 }
@@ -153,7 +153,7 @@ func (o *ProjectContract) SelectBySomeWithPagination(ctx contractapi.Transaction
 	return string(resb), err
 }
 
-// 按索引查詢數據歷史
+// SelectHistoryByIndex 根據提供的索引檢索項目的歷史紀錄
 func (o *ProjectContract) SelectHistoryByIndex(ctx contractapi.TransactionContextInterface, pJSON string) (string, error) {
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
@@ -164,25 +164,26 @@ func (o *ProjectContract) SelectHistoryByIndex(ctx contractapi.TransactionContex
 	return string(resb), err
 }
 
-// 初始化智慧合約數據
+// 初始化智能合約數據，只在智能合約實例化時使用
 func (s *ProjectContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	projects := []model.Project{
-		{ID: "IVSLAB23FA05A1ADC01",
-			Name:         "智慧影像監控產品追溯系統",
-			Developer:    "PoC",
-			Organization: "IVS-Orgs",
-			Category:     "blockchain",
-			Describes:    "本研究旨在實現基於Hyperledger Fabric的區塊鏈溯源平台，通過對產品供應鏈進行可靠和透明的追踪，實現企業ESG目標。",
+		{
+			ID:				"IVSLAB23FA05A1ADC01",
+			Name:         	"智慧影像監控產品追溯系統",
+			Developer:    	"PoC",
+			Organization: 	"IVS-Orgs",
+			Category:     	"blockchain",
+			Describes:    	"本研究旨在實現基於Hyperledger Fabric的區塊鏈溯源平台，通過對產品供應鏈進行可靠和透明的追蹤，實現企業ESG目標。",
 		},
 	}
 	for _, tx := range projects {
 		txJsonByte, err := json.Marshal(tx)
 		if err != nil {
-			return err
+			return fmt.Errorf("序列化項目時發生錯誤: %v", err)
 		}
-		err = s.Insert(ctx, string(txJsonByte))
+		err = s.Insert(ctx, string(txJSON))
 		if err != nil {
-			return err
+			return fmt.Errorf("插入項目時發生錯誤: %v", err)
 		}
 	}
 	return nil
