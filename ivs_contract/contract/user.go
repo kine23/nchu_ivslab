@@ -1,4 +1,4 @@
-package contract
+package ivscontract
 
 import (
 	"encoding/json"
@@ -12,28 +12,23 @@ type UserContract struct {
 	contractapi.Contract
 }
 
-// 註冊新帳號
-func (s *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, username string, name string) error {
-	exists, err := s.UserExists(ctx, username)
+// CreateUser 註冊新帳號
+func (u *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, userJSON string) (string, error) {
+	var user model.User
+	err := json.Unmarshal([]byte(userJSON), &user)
 	if err != nil {
-		return err
-	}
-	if exists {
-		return fmt.Errorf("the user %s already exists", username)
+		return "", err
 	}
 
-	user := model.User{
-		Username: username,
-		Name:     name,
-	}
-	userJSON, err := json.Marshal(user)
+	err = ctx.GetStub().PutState(user.GetKey(), []byte(userJSON))
 	if err != nil {
-		return err
+		return "", fmt.Errorf("failed to put user to world state. %v", err)
 	}
-	return ctx.GetStub().PutState(username, userJSON)
+
+	return user.GetKey(), nil
 }
 
-// 讀取指定帳號訊息
+// ReadUser 讀取指定帳號訊息
 func (s *UserContract) ReadUser(ctx contractapi.TransactionContextInterface, username string) (*model.User, error) {
 	userJSON, err := ctx.GetStub().GetState(username)
 	if err != nil {
@@ -52,42 +47,29 @@ func (s *UserContract) ReadUser(ctx contractapi.TransactionContextInterface, use
 	return &user, nil
 }
 
-// 更新帳號訊息
-func (s *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface, username string, name string) error {
-	exists, err := s.UserExists(ctx, username)
+// UpdateUser 更新帳號訊息
+func (u *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface, userJSON string) (string, error) {
+	var user model.User
+	err := json.Unmarshal([]byte(userJSON), &user)
 	if err != nil {
-		return err
-	}
-	if !exists {
-		return fmt.Errorf("the user %s does not exist", username)
+		return "", err
 	}
 
-	user := model.User{
-		Username: username,
-		Name:     name,
-	}
-	userJSON, err := json.Marshal(user)
+	err = ctx.GetStub().PutState(user.GetKey(), []byte(userJSON))
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return ctx.GetStub().PutState(username, userJSON)
+	return user.GetKey(), nil
 }
 
-// 刪除指定ID帳號
-func (s *UserContract) DeleteUser(ctx contractapi.TransactionContextInterface, username string) error {
-	exists, err := s.UserExists(ctx, username)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return fmt.Errorf("the user %s does not exist", username)
-	}
-
-	return ctx.GetStub().DelState(username)
+//  DeleteUser 刪除帳號
+func (u *UserContract) DeleteUser(ctx contractapi.TransactionContextInterface, userID string) error {
+	err := ctx.GetStub().DelState(userID)
+	return err
 }
 
-// 判斷帳號是否存在
+// UserExists 判斷帳號是否存在
 func (s *UserContract) UserExists(ctx contractapi.TransactionContextInterface, username string) (bool, error) {
 	userJSON, err := ctx.GetStub().GetState(username)
 	if err != nil {
@@ -97,33 +79,26 @@ func (s *UserContract) UserExists(ctx contractapi.TransactionContextInterface, u
 	return userJSON != nil, nil
 }
 
-// 讀取所有帳號訊息
-func (s *UserContract) GetAllUsers(ctx contractapi.TransactionContextInterface) ([]*model.User, error) {
-	// GetStateByRange 查詢參數兩個空字元就是查詢所有
-	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
+// GetUser 讀取帳號訊息
+func (u *UserContract) GetUser(ctx contractapi.TransactionContextInterface, userID string) (*model.User, error) {
+	userBytes, err := ctx.GetStub().GetState(userID)
 	if err != nil {
 		return nil, err
 	}
-	defer resultsIterator.Close()
-
-	var users []*model.User
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return nil, err
-		}
-
-		var user model.User
-		err = json.Unmarshal(queryResponse.Value, &user)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, &user)
+	if userBytes == nil {
+		return nil, fmt.Errorf("用戶 %s 不存在", userID)
 	}
 
-	return users, nil
+	var user model.User
+	err = json.Unmarshal(userBytes, &user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
+// InitLedger 初始化智能合約數據，只在智能合約實例化時使用
 func (o *UserContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	txs := []model.User{
 		{
