@@ -13,7 +13,7 @@ type UserContract struct {
 }
 
 // CreateUser 註冊新帳號
-func (u *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, userJSON string) (string, error) {
+func (u *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, userJSON string) (*model.User, error) {
 	var user model.User
 	err := json.Unmarshal([]byte(userJSON), &user)
 	if err != nil {
@@ -25,7 +25,7 @@ func (u *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, u
 		return "", fmt.Errorf("failed to put user to world state. %v", err)
 	}
 
-	return user.GetKey(), nil
+	return &user, nil
 }
 
 // ReadUser 讀取指定帳號訊息
@@ -48,19 +48,19 @@ func (s *UserContract) ReadUser(ctx contractapi.TransactionContextInterface, use
 }
 
 // UpdateUser 更新帳號訊息
-func (u *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface, userJSON string) (string, error) {
+func (u *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface, userJSON string) (*model.User, error) {
 	var user model.User
 	err := json.Unmarshal([]byte(userJSON), &user)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	err = ctx.GetStub().PutState(user.GetKey(), []byte(userJSON))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return user.GetKey(), nil
+	return &user, nil
 }
 
 //  DeleteUser 刪除帳號
