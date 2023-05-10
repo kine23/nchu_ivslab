@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/kine23/nchu_ivslab/ivs_contract/model"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 )
 
 // buildQueryString 用於構建用於查詢的JSON字符串
@@ -60,7 +60,7 @@ func SelectByQueryStringWithPagination[T interface{}](ctx contractapi.Transactio
 	}
 	defer resultsIterator.Close()
 
-	var results []*T
+	var results []T
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
@@ -71,7 +71,7 @@ func SelectByQueryStringWithPagination[T interface{}](ctx contractapi.Transactio
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, &item)
+		results = append(results, item)
 	}
 
 	paginatedQueryResult := &model.PaginatedQueryResult[T]{
@@ -101,10 +101,17 @@ func SelectHistoryByIndex[T interface{}](ctx contractapi.TransactionContextInter
 		if err != nil {
 			return nil, err
 		}
-		historyItem := &model.HistoryQueryResult[T]{
-			Record:    item,
+
+		// 在這裡添加類型斷言
+		asset, ok := item.(model.Asset)
+		if !ok {
+			return nil, fmt.Errorf("無法將T轉換為model.Asset")
+		}
+
+		historyItem := &model.HistoryQueryResult[asset]{
+			Record:    asset,
 			TxId:      queryResponse.TxId,
-			Timestamp: queryResponse.Timestamp,
+			Timestamp: queryResponse.Timestamp.AsTime(),
 			IsDelete:  queryResponse.IsDelete,
 		}
 		results = append(results, historyItem)
@@ -117,39 +124,3 @@ func SelectByIndexAndPagination[T interface{}](ctx contractapi.TransactionContex
 	queryString := buildQueryString(table, key, value)
 	return SelectByQueryStringWithPagination[T](ctx, queryString, pageSize, bookmark)
 }
-
-// 交易創建後的所有變化
-func SelectHistoryByIndex[T interface{}](ctx contractapi.TransactionContextInterface, index string) ([]model.HistoryQueryResult[T], error) {
-	resultsIterator, err := ctx.GetStub().GetHistoryForKey(index)
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	var records []model.HistoryQueryResult[T]
-	for resultsIterator.HasNext() {
-		response, err := resultsIterator.Next()
-		if err != nil {
-			return nil, err
-		}
-
-		var tx T
-		if len(response.Value) > 0 {
-			err = json.Unmarshal(response.Value, &tx)
-			if err != nil {
-				return nil, err
-			}
-		}
-		timestamp := time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)) // 將時間戳轉換為 time.Time 類型
-		record := model.HistoryQueryResult[T]{
-			TxId:      response.TxId,
-			Record:    tx,
-			IsDelete:  response.IsDelete,
-			Timestamp: timestamp,
-		}
-		records = append(records, record)
-	}
-	return records, nil
-}
-
-
