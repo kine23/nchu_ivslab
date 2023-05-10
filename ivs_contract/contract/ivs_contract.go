@@ -155,13 +155,13 @@ func (o *ProjectContract) SelectBySomeWithPagination(ctx contractapi.Transaction
 
 // SelectHistoryByIndex 根據提供的索引檢索項目的歷史紀錄
 func (o *ProjectContract) SelectHistoryByIndex(ctx contractapi.TransactionContextInterface, pJSON string) (string, error) {
-	var tx model.Project
-	json.Unmarshal([]byte(pJSON), &tx)
-	fmt.Println("select by tx: ", tx)
-	res, err := tools.SelectHistoryByIndex[model.Project](ctx, tx.Index())
-	resb, _ := json.Marshal(res)
-	fmt.Printf("select result: %v", res)
-	return string(resb), err
+    var tx model.Project
+    json.Unmarshal([]byte(pJSON), &tx)
+    fmt.Println("select by tx: ", tx)
+    res, err := tools.SelectHistoryByIndex[model.Project](ctx, tx.Index())
+    resb, _ := json.Marshal(res)
+    fmt.Printf("select result: %v", res)
+    return string(resb), err
 }
 
 // 初始化智能合約數據，只在智能合約實例化時使用
