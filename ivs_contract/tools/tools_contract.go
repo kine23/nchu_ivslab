@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/kine23/nchu_ivslab/model"
+	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"
+	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/kine23/nchu_ivslab/ivs_contract/model"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // buildQueryString 用於構建用於查詢的JSON字符串
@@ -74,11 +77,11 @@ func SelectByQueryStringWithPagination[T interface{}](ctx contractapi.Transactio
         results = append(results, &item)
     }
 
-    paginatedQueryResult := model.PaginatedQueryResult[T]{
-        Records:             results,
-        FetchedRecordsCount: metadata.FetchedRecordsCount,
-        Bookmark:            metadata.Bookmark,
-    }
+	type PaginatedQueryResult[T any] struct {
+		Records             []*T             `json:"records"`
+		FetchedRecordsCount int32            `json:"fetched_records_count"`
+		Bookmark            string           `json:"bookmark"`
+	}
     return &paginatedQueryResult, nil
 }
 
@@ -101,12 +104,12 @@ func SelectHistoryByIndex[T interface{}](ctx contractapi.TransactionContextInter
 		if err != nil {
 			return nil, err
 		}
-		historyItem := model.HistoryQueryResult[T]{
-			Record:    item,
-			TxId:      queryResponse.TxId,
-			Timestamp: queryResponse.Timestamp,
-			IsDelete:  queryResponse.IsDelete,
-		}
+	type HistoryQueryResult[T any] struct {
+		Record    T                   `json:"record"`
+		TxId      string              `json:"tx_id"`
+		Timestamp *timestamppb.Timestamp `json:"timestamp"`
+		IsDelete  bool                `json:"is_delete"`
+	}
 		results = append(results, &historyItem)
 	}
 	return results, nil
@@ -151,4 +154,5 @@ func SelectHistoryByIndex[T interface{}](ctx contractapi.TransactionContextInter
 	}
 	return records, nil
 }
+
 
