@@ -3,18 +3,17 @@ package ivscontract
 import (
 	"encoding/json"
 	"fmt"
-	
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/kine23/nchu_ivslab/ivs_contract/model"
 	"github.com/kine23/nchu_ivslab/ivs_contract/tools"
 )
 
-type ProjectContract struct {
+type IVSContract struct {
 	contractapi.Contract
 }
 
 // 判斷零件是否存在
-func (o *ProjectContract) Exists(ctx contractapi.TransactionContextInterface, index string) (bool, error) {
+func (o *IVSContract) Exists(ctx contractapi.TransactionContextInterface, index string) (bool, error) {
 	resByte, err := ctx.GetStub().GetState(index)
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state: %v", err)
@@ -24,7 +23,7 @@ func (o *ProjectContract) Exists(ctx contractapi.TransactionContextInterface, in
 }
 
 // 寫入新零件
-func (o *ProjectContract) Insert(ctx contractapi.TransactionContextInterface, pJSON string) error {
+func (o *IVSContract) Insert(ctx contractapi.TransactionContextInterface, pJSON string) error {
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
 	exists, err := o.Exists(ctx, tx.Index())
@@ -49,7 +48,7 @@ func (o *ProjectContract) Insert(ctx contractapi.TransactionContextInterface, pJ
 }
 
 // 更新零件訊息
-func (o *ProjectContract) Update(ctx contractapi.TransactionContextInterface, pJSON string) error {
+func (o *IVSContract) Update(ctx contractapi.TransactionContextInterface, pJSON string) error {
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
 
@@ -82,7 +81,7 @@ func (o *ProjectContract) Update(ctx contractapi.TransactionContextInterface, pJ
 }
 
 // 刪除零件
-func (o *ProjectContract) Delete(ctx contractapi.TransactionContextInterface, pJSON string) error {
+func (o *IVSContract) Delete(ctx contractapi.TransactionContextInterface, pJSON string) error {
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
 
@@ -108,7 +107,7 @@ func (o *ProjectContract) Delete(ctx contractapi.TransactionContextInterface, pJ
 }
 
 // SelectByIndex 根據提供的索引檢索項目
-func (o *ProjectContract) SelectByIndex(ctx contractapi.TransactionContextInterface, pJSON string) (*model.Project, error) {
+func (o *IVSContract) SelectByIndex(ctx contractapi.TransactionContextInterface, pJSON string) (*model.Project, error) {
 	tx := model.Project{}
 	json.Unmarshal([]byte(pJSON), &tx)
 	queryString := fmt.Sprintf(`{"selector":{"ID":"%s", "table":"project"}}`, tx.ID)
@@ -121,20 +120,20 @@ func (o *ProjectContract) SelectByIndex(ctx contractapi.TransactionContextInterf
 }
 
 // 查詢所有紀錄
-func (o *ProjectContract) SelectAll(ctx contractapi.TransactionContextInterface) ([]*model.Project, error) {
+func (o *IVSContract) SelectAll(ctx contractapi.TransactionContextInterface) ([]*model.Project, error) {
 	queryString := fmt.Sprintf(`{"selector":{"table":"project"}}`)
 	fmt.Println("select string: ", queryString)
 	return tools.SelectByQueryString[model.Project](ctx, queryString)
 }
 
 // 依索引查詢數據
-func (o *ProjectContract) SelectBySome(ctx contractapi.TransactionContextInterface, key, value string) ([]*model.Project, error) {
+func (o *IVSContract) SelectBySome(ctx contractapi.TransactionContextInterface, key, value string) ([]*model.Project, error) {
 	queryString := fmt.Sprintf(`{"selector":{"%s":"%s", "table":"project"}}`, key, value)
 	return tools.SelectByQueryString[model.Project](ctx, queryString)
 }
 
 // 多頁查詢所有數據
-func (o *ProjectContract) SelectAllWithPagination(ctx contractapi.TransactionContextInterface, pageSize int32, bookmark string) (string, error) {
+func (o *IVSContract) SelectAllWithPagination(ctx contractapi.TransactionContextInterface, pageSize int32, bookmark string) (string, error) {
 	queryString := fmt.Sprintf(`{"selector":{"table":"project"}}`)
 	fmt.Println("select string: ", queryString, "pageSize: ", pageSize, "bookmark", bookmark)
 	res, err := tools.SelectByQueryStringWithPagination[model.Project](ctx, queryString, pageSize, bookmark)
@@ -144,7 +143,7 @@ func (o *ProjectContract) SelectAllWithPagination(ctx contractapi.TransactionCon
 }
 
 // 按關鍵字多頁查詢
-func (o *ProjectContract) SelectBySomeWithPagination(ctx contractapi.TransactionContextInterface, key, value string, pageSize int32, bookmark string) (string, error) {
+func (o *IVSContract) SelectBySomeWithPagination(ctx contractapi.TransactionContextInterface, key, value string, pageSize int32, bookmark string) (string, error) {
 	queryString := fmt.Sprintf(`{"selector":{"%s":"%s","table":"project"}}`, key, value)
 	fmt.Println("select string: ", queryString, "pageSize: ", pageSize, "bookmark", bookmark)
 	res, err := tools.SelectByQueryStringWithPagination[model.Project](ctx, queryString, pageSize, bookmark)
@@ -154,7 +153,7 @@ func (o *ProjectContract) SelectBySomeWithPagination(ctx contractapi.Transaction
 }
 
 // SelectHistoryByIndex 根據提供的索引檢索項目的歷史紀錄
-func (o *ProjectContract) SelectHistoryByIndex(ctx contractapi.TransactionContextInterface, pJSON string) (string, error) {
+func (o *IVSContract) SelectHistoryByIndex(ctx contractapi.TransactionContextInterface, pJSON string) (string, error) {
     var tx model.Project
     json.Unmarshal([]byte(pJSON), &tx)
     fmt.Println("select by tx: ", tx)
@@ -165,7 +164,7 @@ func (o *ProjectContract) SelectHistoryByIndex(ctx contractapi.TransactionContex
 }
 
 // 初始化智能合約數據，只在智能合約實例化時使用
-func (s *ProjectContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+func (s *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	projects := []model.Project{
 		{
 			ID:				"IVSLAB23FA05A1ADC01",
