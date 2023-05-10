@@ -14,16 +14,3 @@ type User struct {
 func (u *User) GetKey() string {
 	return u.Username
 }
-
-func (o *User) Index() string {
-	o.Table = "user"
-	return o.Username
-}
-
-func (o *User) IndexKey() string {
-	return "table~username"
-}
-
-func (o *User) IndexAttr() []string {
-	return []string{o.Table, o.Username}
-}
