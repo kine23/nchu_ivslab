@@ -28,61 +28,62 @@ func buildQueryString(table, key, value string) string {
 }
 
 // SelectByQueryString 通用查詢功能
-func SelectByQueryString[T model.Asset](ctx contractapi.TransactionContextInterface, queryString string) ([]*T, error) {
-	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
+func SelectByQueryString[T interface{}](ctx contractapi.TransactionContextInterface, queryString string) ([]*T, error) {
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, err
+    }
+    defer resultsIterator.Close()
 
-	var results []*T
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return nil, err
-		}
-		var item T
-		err = json.Unmarshal(queryResponse.Value, &item)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, &item)
-	}
-	return results, nil
+    var results []*T
+    for resultsIterator.HasNext() {
+        queryResponse, err := resultsIterator.Next()
+        if err != nil {
+            return nil, err
+        }
+        var item T
+        err = json.Unmarshal(queryResponse.Value, &item)
+        if err != nil {
+            return nil, err
+        }
+        results = append(results, &item)
+    }
+
+    return results, nil
 }
 
 // SelectByQueryStringWithPagination 通用分頁查詢功能
-func SelectByQueryStringWithPagination[T model.Asset](ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string) (*model.PaginatedQueryResult[T], error) {
-	resultsIterator, metadata, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
+func SelectByQueryStringWithPagination[T interface{}](ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string) (*model.PaginatedQueryResult[T], error) {
+    resultsIterator, metadata, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
+    if err != nil {
+        return nil, err
+    }
+    defer resultsIterator.Close()
 
-	var results []T
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return nil, err
-		}
-		var item T
-		err = json.Unmarshal(queryResponse.Value, &item)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, item)
-	}
+    var results []*T
+    for resultsIterator.HasNext() {
+        queryResponse, err := resultsIterator.Next()
+        if err != nil {
+            return nil, err
+        }
+        var item T
+        err = json.Unmarshal(queryResponse.Value, &item)
+        if err != nil {
+            return nil, err
+        }
+        results = append(results, &item)
+    }
 
-	paginatedQueryResult := model.PaginatedQueryResult[T]{
-		Records:             results,
-		FetchedRecordsCount: metadata.FetchedRecordsCount,
-		Bookmark:            metadata.Bookmark,
-	}
-	return &paginatedQueryResult, nil
+    paginatedQueryResult := model.PaginatedQueryResult[T]{
+        Records:             results,
+        FetchedRecordsCount: metadata.FetchedRecordsCount,
+        Bookmark:            metadata.Bookmark,
+    }
+    return &paginatedQueryResult, nil
 }
 
 // SelectHistoryByIndex 通用歷史查詢功能
-func SelectHistoryByIndex[T model.Asset](ctx contractapi.TransactionContextInterface, index string) ([]*model.HistoryQueryResult[T], error) {
+func SelectHistoryByIndex[T interface{}](ctx contractapi.TransactionContextInterface, index string) ([]*model.HistoryQueryResult[T], error) {
 	resultsIterator, err := ctx.GetStub().GetHistoryForKey(index)
 	if err != nil {
 		return nil, err
@@ -112,7 +113,7 @@ func SelectHistoryByIndex[T model.Asset](ctx contractapi.TransactionContextInter
 }
 
 // SelectByIndexAndPagination 通用按索引分頁查詢功能
-func SelectByIndexAndPagination[T model.Asset](ctx contractapi.TransactionContextInterface, table, key, value string, pageSize int32, bookmark string) (*model.PaginatedQueryResult[T], error) {
+func SelectByIndexAndPagination[T interface{}](ctx contractapi.TransactionContextInterface, table, key, value string, pageSize int32, bookmark string) (*model.PaginatedQueryResult[T], error) {
 	queryString := buildQueryString(table, key, value)
 	return SelectByQueryStringWithPagination[T](ctx, queryString, pageSize, bookmark)
 }
