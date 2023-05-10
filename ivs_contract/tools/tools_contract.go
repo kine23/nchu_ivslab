@@ -3,10 +3,7 @@ package tools
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"
-	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/kine23/nchu_ivslab/ivs_contract/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -57,32 +54,32 @@ func SelectByQueryString[T interface{}](ctx contractapi.TransactionContextInterf
 
 // SelectByQueryStringWithPagination 通用分頁查詢功能
 func SelectByQueryStringWithPagination[T interface{}](ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string) (*model.PaginatedQueryResult[T], error) {
-    resultsIterator, metadata, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
-    if err != nil {
-        return nil, err
-    }
-    defer resultsIterator.Close()
-
-    var results []*T
-    for resultsIterator.HasNext() {
-        queryResponse, err := resultsIterator.Next()
-        if err != nil {
-            return nil, err
-        }
-        var item T
-        err = json.Unmarshal(queryResponse.Value, &item)
-        if err != nil {
-            return nil, err
-        }
-        results = append(results, &item)
-    }
-
-	type PaginatedQueryResult[T any] struct {
-		Records             []*T             `json:"records"`
-		FetchedRecordsCount int32            `json:"fetched_records_count"`
-		Bookmark            string           `json:"bookmark"`
+	resultsIterator, metadata, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
+	if err != nil {
+		return nil, err
 	}
-    return &paginatedQueryResult, nil
+	defer resultsIterator.Close()
+
+	var results []*T
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+		var item T
+		err = json.Unmarshal(queryResponse.Value, &item)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, &item)
+	}
+
+	paginatedQueryResult := &model.PaginatedQueryResult[T]{
+		Records:             results,
+		FetchedRecordsCount: metadata.FetchedRecordsCount,
+		Bookmark:            metadata.Bookmark,
+	}
+	return paginatedQueryResult, nil
 }
 
 // SelectHistoryByIndex 通用歷史查詢功能
@@ -104,13 +101,13 @@ func SelectHistoryByIndex[T interface{}](ctx contractapi.TransactionContextInter
 		if err != nil {
 			return nil, err
 		}
-	type HistoryQueryResult[T any] struct {
-		Record    T                   `json:"record"`
-		TxId      string              `json:"tx_id"`
-		Timestamp *timestamppb.Timestamp `json:"timestamp"`
-		IsDelete  bool                `json:"is_delete"`
-	}
-		results = append(results, &historyItem)
+		historyItem := &model.HistoryQueryResult[T]{
+			Record:    item,
+			TxId:      queryResponse.TxId,
+			Timestamp: queryResponse.Timestamp,
+			IsDelete:  queryResponse.IsDelete,
+		}
+		results = append(results, historyItem)
 	}
 	return results, nil
 }
