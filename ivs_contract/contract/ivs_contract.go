@@ -168,9 +168,9 @@ func (s *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) er
 	projects := []model.Project{
 		{ID: "IVSLAB23FA05A1ADC01",
 			Name:         "智慧影像監控產品追溯系統",
-			Developer:    "PoC",
-			Organization: "IVS-Orgs",
-			Category:     "blockchain",
+			Developer:    "SF.Chen",
+			Organization: "IVSLab-Orgs",
+			Category:     "Blockchain",
 			Describes:    "本研究旨在實現基於Hyperledger Fabric的區塊鏈溯源平台，通過對產品供應鏈進行可靠和透明的追踪，實現企業ESG目標。",
 		},
 	}

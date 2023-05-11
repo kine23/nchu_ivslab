@@ -126,8 +126,8 @@ func (s *UserContract) GetAllUsers(ctx contractapi.TransactionContextInterface) 
 func (o *UserContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	txs := []model.User{
 		{
-			Username: "ivspoc",
-			Name:     "PoC",
+			Username: "SF.Chen",
+			Name:     "SF.Chen",
 		},
 	}
 	for _, tx := range txs {
