@@ -22,9 +22,9 @@ func (o *Project) Index() string {
 }
 
 func (o *Project) IndexKey() string {
-	return "table~ID~PartName~BatchNumber~SerialNumber"
+	return "table~ID~Manufacturer~ManufactureLocation~PartName~BatchNumber~SerialNumber~ManufactureDate"
 }
 
 func (o *Project) IndexAttr() []string {
-	return []string{o.Table, o.ID, o.PartName, o.BatchNumber, o.SerialNumber}
+	return []string{o.Table, o.ID, o.Manufacturer, o.ManufactureLocation, o.PartName, o.BatchNumber, o.SerialNumber, o.ManufactureDate}
 }
