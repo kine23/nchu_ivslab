@@ -3,9 +3,11 @@ package contract
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/kine23/nchu_ivslab/ivs_contract/model"
 	"github.com/kine23/nchu_ivslab/ivs_contract/tools"
+
 )
 
 type IVSContract struct {
@@ -30,6 +32,7 @@ func (o *IVSContract) Insert(ctx contractapi.TransactionContextInterface, pJSON 
 	if err != nil {
 		return err
 	}
+
 	if exists {
 		return fmt.Errorf("the data %s already exists", tx.Index())
 	}
@@ -37,6 +40,7 @@ func (o *IVSContract) Insert(ctx contractapi.TransactionContextInterface, pJSON 
 	if err != nil {
 		return err
 	}
+
 	ctx.GetStub().PutState(tx.Index(), txb)
 	indexKey, err := ctx.GetStub().CreateCompositeKey(tx.IndexKey(), tx.IndexAttr())
 	if err != nil {
@@ -51,7 +55,6 @@ func (o *IVSContract) Insert(ctx contractapi.TransactionContextInterface, pJSON 
 func (o *IVSContract) Update(ctx contractapi.TransactionContextInterface, pJSON string) error {
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
-
 	otx, err := o.SelectByIndex(ctx, pJSON)
 	if err != nil {
 		return err
@@ -66,13 +69,11 @@ func (o *IVSContract) Update(ctx contractapi.TransactionContextInterface, pJSON 
 		return err
 	}
 	ctx.GetStub().DelState(indexKey)
-
 	txb, err := json.Marshal(tx)
 	if err != nil {
 		return err
 	}
 	ctx.GetStub().PutState(tx.Index(), txb)
-
 	if indexKey, err = ctx.GetStub().CreateCompositeKey(tx.IndexKey(), tx.IndexAttr()); err != nil {
 		return err
 	}
@@ -84,7 +85,6 @@ func (o *IVSContract) Update(ctx contractapi.TransactionContextInterface, pJSON 
 func (o *IVSContract) Delete(ctx contractapi.TransactionContextInterface, pJSON string) error {
 	var tx model.Project
 	json.Unmarshal([]byte(pJSON), &tx)
-
 	anstx, err := o.SelectByIndex(ctx, pJSON)
 	if err != nil {
 		return err
@@ -101,7 +101,6 @@ func (o *IVSContract) Delete(ctx contractapi.TransactionContextInterface, pJSON 
 	if err != nil {
 		return err
 	}
-
 	// Delete index entry
 	return ctx.GetStub().DelState(indexKey)
 }
@@ -143,6 +142,7 @@ func (o *IVSContract) SelectAllWithPagination(ctx contractapi.TransactionContext
 }
 
 // 按關鍵字多頁查詢
+
 func (o *IVSContract) SelectBySomeWithPagination(ctx contractapi.TransactionContextInterface, key, value string, pageSize int32, bookmark string) (string, error) {
 	queryString := fmt.Sprintf(`{"selector":{"%s":"%s","table":"project"}}`, key, value)
 	fmt.Println("select string: ", queryString, "pageSize: ", pageSize, "bookmark", bookmark)
@@ -168,8 +168,8 @@ func (s *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) er
 	projects := []model.Project{
 		{ID: "IVSLAB23FA05A1ADC01",
 			Name:         "智慧影像監控產品追溯系統",
-			Developer:    "SF.Chen",
-			Organization: "IVSLab-Orgs",
+			Developer:    "SFChen",
+			Organization: "Lab-IVSOrgs",
 			Category:     "Blockchain",
 			Describes:    "本研究旨在實現基於Hyperledger Fabric的區塊鏈溯源平台，通過對產品供應鏈進行可靠和透明的追踪，實現企業ESG目標。",
 		},
@@ -187,12 +187,8 @@ func (s *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) er
 	return nil
 }
 
-type UserContract struct {
-	contractapi.Contract
-}
-
 // 註冊新帳號
-func (s *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, username string, name string) error {
+func (s *IVSContract) CreateUser(ctx contractapi.TransactionContextInterface, username string, name string) error {
 	exists, err := s.UserExists(ctx, username)
 	if err != nil {
 		return err
@@ -213,7 +209,7 @@ func (s *UserContract) CreateUser(ctx contractapi.TransactionContextInterface, u
 }
 
 // 讀取指定帳號訊息
-func (s *UserContract) ReadUser(ctx contractapi.TransactionContextInterface, username string) (*model.User, error) {
+func (s *IVSContract) ReadUser(ctx contractapi.TransactionContextInterface, username string) (*model.User, error) {
 	userJSON, err := ctx.GetStub().GetState(username)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %v", err)
@@ -227,12 +223,12 @@ func (s *UserContract) ReadUser(ctx contractapi.TransactionContextInterface, use
 	if err != nil {
 		return nil, err
 	}
-
 	return &user, nil
 }
 
 // 更新帳號訊息
-func (s *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface, username string, name string) error {
+
+func (s *IVSContract) UpdateUser(ctx contractapi.TransactionContextInterface, username string, name string) error {
 	exists, err := s.UserExists(ctx, username)
 	if err != nil {
 		return err
@@ -249,12 +245,11 @@ func (s *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface, u
 	if err != nil {
 		return err
 	}
-
 	return ctx.GetStub().PutState(username, userJSON)
 }
 
 // 刪除指定ID帳號
-func (s *UserContract) DeleteUser(ctx contractapi.TransactionContextInterface, username string) error {
+func (s *IVSContract) DeleteUser(ctx contractapi.TransactionContextInterface, username string) error {
 	exists, err := s.UserExists(ctx, username)
 	if err != nil {
 		return err
@@ -262,29 +257,26 @@ func (s *UserContract) DeleteUser(ctx contractapi.TransactionContextInterface, u
 	if !exists {
 		return fmt.Errorf("the user %s does not exist", username)
 	}
-
 	return ctx.GetStub().DelState(username)
 }
 
 // 判斷帳號是否存在
-func (s *UserContract) UserExists(ctx contractapi.TransactionContextInterface, username string) (bool, error) {
+func (s *IVSContract) UserExists(ctx contractapi.TransactionContextInterface, username string) (bool, error) {
 	userJSON, err := ctx.GetStub().GetState(username)
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state: %v", err)
 	}
-
 	return userJSON != nil, nil
 }
 
 // 讀取所有帳號訊息
-func (s *UserContract) GetAllUsers(ctx contractapi.TransactionContextInterface) ([]*model.User, error) {
+func (s *IVSContract) GetAllUsers(ctx contractapi.TransactionContextInterface) ([]*model.User, error) {
 	// GetStateByRange 查詢參數兩個空字元就是查詢所有
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
 		return nil, err
 	}
 	defer resultsIterator.Close()
-
 	var users []*model.User
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
@@ -299,15 +291,14 @@ func (s *UserContract) GetAllUsers(ctx contractapi.TransactionContextInterface) 
 		}
 		users = append(users, &user)
 	}
-
 	return users, nil
 }
 
-func (o *UserContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+func (o *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	txs := []model.User{
 		{
-			Username: "SF.Chen",
-			Name:     "SF.Chen",
+			Username: "SFChen",
+			Name:     "SFChen",
 		},
 	}
 	for _, tx := range txs {
