@@ -6,31 +6,12 @@ import (
 )
 
 func main() {
-	IVSContract := new(IVSContract)
-	IVSContract.Contract = new(contractapi.Contract)
-
-	userContract := new(UserContract)
-	userContract.Contract = new(contractapi.Contract)
-
-	chaincode, err := contractapi.NewChaincode(IVSContract, userContract)
+	chaincode, err := contractapi.NewChaincode(&contract.IVSContract{})
 	if err != nil {
-		fmt.Printf("Error creating chaincode: %s", err.Error())
-		return
+		panic(err)
 	}
 
 	if err := chaincode.Start(); err != nil {
-		fmt.Printf("Error starting chaincode: %s", err.Error())
+		panic(err)
 	}
-
 }
-
-//func main() {
-//	chaincode, err := contractapi.NewChaincode(&contract.UserContract{}, &contract.IVSContract{})
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	if err := chaincode.Start(); err != nil {
-//		panic(err)
-//	}
-//}
