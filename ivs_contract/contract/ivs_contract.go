@@ -163,30 +163,6 @@ func (o *IVSContract) SelectHistoryByIndex(ctx contractapi.TransactionContextInt
 	return string(resb), err
 }
 
-// 初始化智慧合約數據
-func (s *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	projects := []model.Project{
-		{ID: "IVSLAB23FA05A1ADC01",
-			Name:         "智慧影像監控產品追溯系統",
-			Developer:    "SFChen",
-			Organization: "Lab-IVSOrgs",
-			Category:     "Blockchain",
-			Describes:    "本研究旨在實現基於Hyperledger Fabric的區塊鏈溯源平台，通過對產品供應鏈進行可靠和透明的追踪，實現企業ESG目標。",
-		},
-	}
-	for _, tx := range projects {
-		txJsonByte, err := json.Marshal(tx)
-		if err != nil {
-			return err
-		}
-		err = s.Insert(ctx, string(txJsonByte))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // 註冊新帳號
 func (s *IVSContract) CreateUser(ctx contractapi.TransactionContextInterface, username string, name string) error {
 	exists, err := s.UserExists(ctx, username)
@@ -294,22 +270,63 @@ func (s *IVSContract) GetAllUsers(ctx contractapi.TransactionContextInterface) (
 	return users, nil
 }
 
-func (o *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	txs := []model.User{
+// 初始化專案數據
+func (s *IVSContract) InitProjects(ctx contractapi.TransactionContextInterface) error {
+	projects := []model.Project{
+		{
+			ID:           "IVSLAB23FA05A1ADC01",
+			Name:         "智慧影像監控產品追溯系統",
+			Developer:    "SFChen",
+			Organization: "Lab-IVSOrgs",
+			Category:     "Blockchain",
+			Describes:    "本研究旨在實現基於Hyperledger Fabric的區塊鏈溯源平台，通過對產品供應鏈進行可靠和透明的追踪，實現企業ESG目標。",
+		},
+	}
+	for _, tx := range projects {
+		txJSON, err := json.Marshal(tx)
+		if err != nil {
+			return err
+		}
+		err = s.Insert(ctx, string(txJSON))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// 初始化使用者數據
+func (s *IVSContract) InitUsers(ctx contractapi.TransactionContextInterface) error {
+	users := []model.User{
 		{
 			Username: "SFChen",
 			Name:     "SFChen",
 		},
 	}
-	for _, tx := range txs {
-		txJSON, err := json.Marshal(tx)
+	for _, user := range users {
+		userJSON, err := json.Marshal(user)
 		if err != nil {
 			return err
 		}
-		err = ctx.GetStub().PutState(tx.Username, txJSON)
+		err = ctx.GetStub().PutState(user.Username, userJSON)
 		if err != nil {
-			return fmt.Errorf("failed to put to world state. %v", err)
+			return fmt.Errorf("failed to put to world state: %v", err)
 		}
 	}
+	return nil
+}
+
+// 初始化智慧合約數據
+func (s *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	err := s.InitProjects(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to initialize projects: %v", err)
+	}
+
+	err = s.InitUsers(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to initialize users: %v", err)
+	}
+
 	return nil
 }
