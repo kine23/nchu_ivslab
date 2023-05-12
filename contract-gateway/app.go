@@ -43,7 +43,7 @@ func main() {
 func getAllAssets(contract *client.Contract) {
 	fmt.Println("Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("GetAllProjects")
+	evaluateResult, err := contract.EvaluateTransaction("SelectAll")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}

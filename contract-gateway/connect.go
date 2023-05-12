@@ -8,50 +8,17 @@ import (
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"github.com/kine23/nchu_ivslab/contract-gateway"
 )
 
-func main() {
-    fmt.Println(brandmspID)       
-    fmt.Println(brandcryptoPath)  
-    fmt.Println(brandcertPath)    
-    fmt.Println(brandkeyPath)     
-    fmt.Println(brandtlsCertPath) 
-    fmt.Println(brandpeerEndpoint)
-    fmt.Println(brandgatewayPeer) 
-
-    fmt.Println(securitymspID)       
-    fmt.Println(securitycryptoPath)  
-    fmt.Println(securitycertPath)    
-    fmt.Println(securitykeyPath)     
-    fmt.Println(securitytlsCertPath) 
-    fmt.Println(securitypeerEndpoint)
-    fmt.Println(securitygatewayPeer) 	
-
-    fmt.Println(networkmspID)       
-    fmt.Println(networkcryptoPath)  
-    fmt.Println(networkcertPath)    
-    fmt.Println(networkkeyPath)     
-    fmt.Println(networktlsCertPath) 
-    fmt.Println(networkpeerEndpoint)
-    fmt.Println(networkgatewayPeer) 
-
-    fmt.Println(cmosmspID)       
-    fmt.Println(cmoscryptoPath)  
-    fmt.Println(cmoscertPath)    
-    fmt.Println(cmoskeyPath)     
-    fmt.Println(cmosytlsCertPath)
-    fmt.Println(cmospeerEndpoint)
-    fmt.Println(cmosgatewayPeer) 
-	
-    fmt.Println(videocodecmspID)       
-    fmt.Println(videocodeccryptoPath)  
-    fmt.Println(videocodeccertPath)    
-    fmt.Println(videocodeckeyPath)     
-    fmt.Println(videocodectlsCertPath) 
-    fmt.Println(videocodecpeerEndpoint)
-    fmt.Println(videocodecgatewayPeer) 	
-}
+const (	
+	mspID="brandMSP"							//所屬組織的MSPID
+	cryptoPath= "/root/MyLab_IVS/organizations/brand.ivsorg.net"		// 中間變量
+	certPath= cryptoPath + "/registers_users/user1/msp/signcerts/cert.pem"	// client數位簽章
+	keyPath= cryptoPath + "/registers_users/user1/msp/keystore/"		// client私鑰路徑
+	tlsCertPath= cryptoPath + "/alliance/tls-ca-cert.pem"			// client tls證書
+	peerEndpoint= "peer1.brand.ivsorg.net:7151"				// peer節點地址
+	gatewayPeer= "peer1.brand.ivsorg.net"					// peer節點名稱
+)
 
 // 建立指向聯盟網路的gRPC連接
 func newGrpcConnection() *grpc.ClientConn {
