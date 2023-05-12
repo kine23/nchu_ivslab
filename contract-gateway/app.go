@@ -39,6 +39,8 @@ func main() {
 
 	fmt.Println("getAllAssets:")
 	getAllAssets(contract)
+	fmt.Println("getAllUsers:")
+	getAllUsers(contract)
 }
 func getAllAssets(contract *client.Contract) {
 	fmt.Println("Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger")
@@ -46,6 +48,17 @@ func getAllAssets(contract *client.Contract) {
 	evaluateResult, err := contract.EvaluateTransaction("SelectAll")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+	}
+	result := formatJSON(evaluateResult)
+
+	fmt.Printf("*** Result:%s\n", result)
+}
+
+func getAllUsers(contract *client.Contract) {
+fmt.Println("Evaluate Transaction: GetAllUsers, function returns all the current users on the ledger")
+	evaluateResult, err := contract.EvaluateTransaction("GetAllUsers")
+if err != nil {
+	panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
 	result := formatJSON(evaluateResult)
 
