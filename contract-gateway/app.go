@@ -4,22 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
-
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
 
 const (
-	channelName   = "ivschannel" // 連接的channel
-	chaincodeName = "ivs_basic"  // 連接的chaincode
+	channelName   = "ivschannel"		// 連接的channel
+	chaincodeName = "ivs_basic"		// 連接的chaincode
 )
-
-type User struct {
-	ID    string `json:"id"`
-	Table string `json:"table"`
-	Name  string `json:"name"`
-}
 
 func main() {
 	clientConnection := newGrpcConnection()
@@ -46,52 +38,37 @@ func main() {
 	contract := network.GetContract(chaincodeName)
 
 	fmt.Println("getAllAssets:")
-	assets, err := getAllAssets(contract)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	users, err := getAllUsers(assets)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Print the list of users.
-	for _, user := range users {
-		fmt.Println(user)
-	}
+	getAllAssets(contract)
+	fmt.Println("getAllUsers:")
+	getAllUsers(contract)
 }
-
-func getAllAssets(contract *client.Contract) ([]*User, error) {
+func getAllAssets(contract *client.Contract) {
 	fmt.Println("Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger")
 
 	evaluateResult, err := contract.EvaluateTransaction("SelectAll")
 	if err != nil {
-		return nil, fmt.Errorf("failed to evaluate transaction: %w", err)
+		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
+	result := formatJSON(evaluateResult)
 
-	var assets []*User
-	if err := json.Unmarshal(evaluateResult, &assets); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal assets: %w", err)
-	}
-
-	return assets, nil
+	fmt.Printf("*** Result:%s\n", result)
 }
 
-func getAllUsers(assets []*User) ([]*User, error) {
-	// Create a slice of users.
-	users := make([]*User, 0)
-
-	// Iterate over the list of assets and create a user for each asset.
-	for _, asset := range assets {
-		user := &User{
-			ID:    asset.ID,
-			Table: asset.Table,
-			Name:  asset.Name,
-		}
-		users = append(users, user)
+func getAllUsers(contract *client.Contract) {
+fmt.Println("Evaluate Transaction: GetAllUsers, function returns all the current users on the ledger")
+	evaluateResult, err := contract.EvaluateTransaction("GetAllUsers")
+if err != nil {
+	panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
+	result := formatJSON(evaluateResult)
 
-	// Return the list of users.
-	return users, nil
+	fmt.Printf("*** Result:%s\n", result)
+}
+
+func formatJSON(data []byte) string {
+	var prettyJSON bytes.Buffer
+	if err := json.Indent(&prettyJSON, data, " ", ""); err != nil {
+		panic(fmt.Errorf("failed to parse JSON: %w", err))
+	}
+	return prettyJSON.String()
 }
