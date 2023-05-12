@@ -46,9 +46,12 @@ func main() {
 	contract := network.GetContract(chaincodeName)
 
 	fmt.Println("getAllAssets:")
-	getAllAssets(contract)
+	assets, err := getAllAssets(contract)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	users, err := getAllUsers(contract)
+	users, err := getAllUsers(assets)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,25 +62,23 @@ func main() {
 	}
 }
 
-func getAllAssets(contract *client.Contract) {
+func getAllAssets(contract *client.Contract) ([]*User, error) {
 	fmt.Println("Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger")
 
 	evaluateResult, err := contract.EvaluateTransaction("SelectAll")
 	if err != nil {
-		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+		return nil, fmt.Errorf("failed to evaluate transaction: %w", err)
 	}
-	result := formatJSON(evaluateResult)
 
-	fmt.Printf("*** Result:%s\n", result)
+	var assets []*User
+	if err := json.Unmarshal(evaluateResult, &assets); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal assets: %w", err)
+	}
+
+	return assets, nil
 }
 
-func getAllUsers(contract *client.Contract) ([]*User, error) {
-	// Get the list of all assets.
-	assets, err := getAllAssets(contract)
-	if err != nil {
-		return nil, err
-	}
-
+func getAllUsers(assets []*User) ([]*User, error) {
 	// Create a slice of users.
 	users := make([]*User, 0)
 
@@ -93,12 +94,4 @@ func getAllUsers(contract *client.Contract) ([]*User, error) {
 
 	// Return the list of users.
 	return users, nil
-}
-
-func formatJSON(data []byte) string {
-	var prettyJSON bytes.Buffer
-	if err := json.Indent(&prettyJSON, data, " ", ""); err != nil {
-		panic(fmt.Errorf("failed to parse JSON: %w", err))
-	}
-	return prettyJSON.String()
 }
