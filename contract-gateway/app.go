@@ -39,8 +39,7 @@ func main() {
 
 	fmt.Println("getAllAssets:")
 	getAllAssets(contract)
-	fmt.Println("getAllUsers:")
-	getAllUsers(contract)
+
 }
 func getAllAssets(contract *client.Contract) {
 	fmt.Println("Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger")
@@ -54,15 +53,37 @@ func getAllAssets(contract *client.Contract) {
 	fmt.Printf("*** Result:%s\n", result)
 }
 
-func getAllUsers(contract *client.Contract) {
-fmt.Println("Evaluate Transaction: GetAllUsers, function returns all the current users on the ledger")
-	evaluateResult, err := contract.EvaluateTransaction("GetAllUsers")
-if err != nil {
-	panic(fmt.Errorf("failed to evaluate transaction: %w", err))
-	}
-	result := formatJSON(evaluateResult)
+func getAllUsers() ([]*User, error) {
+  // Get the list of all assets.
+  assets, err := GetAllAssets()
+  if err != nil {
+    return nil, err
+  }
 
-	fmt.Printf("*** Result:%s\n", result)
+  // Create a slice of users.
+  users := make([]*User, 0)
+
+  // Iterate over the list of assets and create a user for each asset.
+  for _, asset := range assets {
+    user := &User{
+      ID:   asset.ID,
+      Table: asset.Table,
+      Name: asset.Name,
+    }
+    users = append(users, user)
+  }
+
+  // Return the list of users.
+  return users, nil
+}
+users, err := getAllUsers()
+if err != nil {
+  log.Fatal(err)
+}
+
+// Print the list of users.
+for _, user := range users {
+  fmt.Println(user)
 }
 
 func formatJSON(data []byte) string {
