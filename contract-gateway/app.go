@@ -4,14 +4,22 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
+
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
 
 const (
-	channelName   = "ivschannel"		// 連接的channel
-	chaincodeName = "ivs_basic"			// 連接的chaincode
+	channelName   = "ivschannel" // 連接的channel
+	chaincodeName = "ivs_basic"  // 連接的chaincode
 )
+
+type User struct {
+	ID    string `json:"id"`
+	Table string `json:"table"`
+	Name  string `json:"name"`
+}
 
 func main() {
 	clientConnection := newGrpcConnection()
@@ -40,7 +48,17 @@ func main() {
 	fmt.Println("getAllAssets:")
 	getAllAssets(contract)
 
+	users, err := getAllUsers(contract)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Print the list of users.
+	for _, user := range users {
+		fmt.Println(user)
+	}
 }
+
 func getAllAssets(contract *client.Contract) {
 	fmt.Println("Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger")
 
@@ -53,37 +71,28 @@ func getAllAssets(contract *client.Contract) {
 	fmt.Printf("*** Result:%s\n", result)
 }
 
-func getAllUsers() ([]*User, error) {
-  // Get the list of all assets.
-  assets, err := GetAllAssets()
-  if err != nil {
-    return nil, err
-  }
+func getAllUsers(contract *client.Contract) ([]*User, error) {
+	// Get the list of all assets.
+	assets, err := getAllAssets(contract)
+	if err != nil {
+		return nil, err
+	}
 
-  // Create a slice of users.
-  users := make([]*User, 0)
+	// Create a slice of users.
+	users := make([]*User, 0)
 
-  // Iterate over the list of assets and create a user for each asset.
-  for _, asset := range assets {
-    user := &User{
-      ID:   asset.ID,
-      Table: asset.Table,
-      Name: asset.Name,
-    }
-    users = append(users, user)
-  }
+	// Iterate over the list of assets and create a user for each asset.
+	for _, asset := range assets {
+		user := &User{
+			ID:    asset.ID,
+			Table: asset.Table,
+			Name:  asset.Name,
+		}
+		users = append(users, user)
+	}
 
-  // Return the list of users.
-  return users, nil
-}
-users, err := getAllUsers()
-if err != nil {
-  log.Fatal(err)
-}
-
-// Print the list of users.
-for _, user := range users {
-  fmt.Println(user)
+	// Return the list of users.
+	return users, nil
 }
 
 func formatJSON(data []byte) string {
