@@ -23,11 +23,11 @@ func (o *Project) Index() string {
 }
 
 func (o *Project) IndexKey() string {
-	return "table~ID~Manufacturer~ManufactureLocation~PartName~BatchNumber~SerialNumber~ManufactureDate"
+	return "table~ID~Manufacturer~ManufactureLocation~PartName~BatchNumber~SerialNumber~ManufactureDate~Organization"
 }
 
 func (o *Project) IndexAttr() []string {
-	return []string{o.Table, o.ID, o.Manufacturer, o.ManufactureLocation, o.PartName, o.BatchNumber, o.SerialNumber, o.ManufactureDate}
+	return []string{o.Table, o.ID, o.Manufacturer, o.ManufactureLocation, o.PartName, o.BatchNumber, o.SerialNumber, o.ManufactureDate, o.Organization}
 }
 
 // User用戶列表
@@ -43,9 +43,9 @@ func (o *User) Index() string {
 }
 
 func (o *User) IndexKey() string {
-	return "table~username"
+	return "table~username~name"
 }
 
 func (o *User) IndexAttr() []string {
-	return []string{o.Table, o.Username}
+	return []string{o.Table, o.Username, o.Name}
 }
