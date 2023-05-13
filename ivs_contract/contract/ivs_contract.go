@@ -51,6 +51,30 @@ func (o *IVSContract) Insert(ctx contractapi.TransactionContextInterface, pJSON 
 	return ctx.GetStub().PutState(indexKey, value)
 }
 
+// 轉移零件
+func (s *IVSContract) TransferProject(ctx contractapi.TransactionContextInterface, projectID string, newOwnerOrganization string) error {
+	// 獲取項目
+	projectJSON := fmt.Sprintf(`{"ID":"%s"}`, projectID)
+	project, err := s.SelectByIndex(ctx, projectJSON)
+	if err != nil {
+		return fmt.Errorf("failed to get project: %v", err)
+	}
+
+	project.Organization = newOwnerOrganization
+
+	projectJSON, err := json.Marshal(project)
+	if err != nil {
+		return fmt.Errorf("failed to marshal project: %v", err)
+	}
+	err = ctx.GetStub().PutState(projectID, projectJSON)
+	if err != nil {
+		return fmt.Errorf("failed to put project to world state: %v", err)
+	}
+	
+	fmt.Println("project transferred successfully")
+	return nil
+}
+
 // 更新零件訊息
 func (o *IVSContract) Update(ctx contractapi.TransactionContextInterface, pJSON string) error {
 	var tx model.Project
