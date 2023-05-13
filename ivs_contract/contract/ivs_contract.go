@@ -53,9 +53,7 @@ func (o *IVSContract) Insert(ctx contractapi.TransactionContextInterface, pJSON 
 
 // 轉移零件
 func (s *IVSContract) TransferProject(ctx contractapi.TransactionContextInterface, projectID string, newOwnerOrganization string) error {
-	// 獲取項目
-	projectJSON := fmt.Sprintf(`{"ID":"%s"}`, projectID)
-	project, err := s.SelectByIndex(ctx, projectJSON)
+	project, err := s.SelectByIndex(ctx, projectID)
 	if err != nil {
 		return fmt.Errorf("failed to get project: %v", err)
 	}
