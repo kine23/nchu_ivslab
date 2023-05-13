@@ -15,7 +15,7 @@ type Project struct {
 	Describes           string `json:"Describes"`           //描述
 	Developer           string `json:"Developer"`           //開發者
 	Organization        string `json:"Organization"`        //組織
-	Owner			string `json:"owner"`  		//零件所有者
+	Owner				string `json:"owner"` 		 		//零件所有者
 }
 
 func (o *Project) Index() string {
