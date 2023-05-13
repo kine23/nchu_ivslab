@@ -275,7 +275,7 @@ func (s *IVSContract) InitProjects(ctx contractapi.TransactionContextInterface) 
 	projects := []model.Project{
 		{
 			ID:           "IVSLAB23FA05A1ADC01",
-			Name:         "智慧影像監控產品追溯系統",
+			Item:         "智慧影像監控產品追溯系統",
 			Developer:    "SFChen",
 			Organization: "Lab-IVSOrgs",
 			Category:     "Blockchain",
