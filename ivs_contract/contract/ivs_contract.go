@@ -7,7 +7,6 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/kine23/nchu_ivslab/ivs_contract/model"
 	"github.com/kine23/nchu_ivslab/ivs_contract/tools"
-
 )
 
 type IVSContract struct {
@@ -164,7 +163,6 @@ func (o *IVSContract) SelectAllWithPagination(ctx contractapi.TransactionContext
 }
 
 // 按關鍵字多頁查詢
-
 func (o *IVSContract) SelectBySomeWithPagination(ctx contractapi.TransactionContextInterface, key, value string, pageSize int32, bookmark string) (string, error) {
 	queryString := fmt.Sprintf(`{"selector":{"%s":"%s","table":"project"}}`, key, value)
 	fmt.Println("select string: ", queryString, "pageSize: ", pageSize, "bookmark", bookmark)
@@ -225,7 +223,6 @@ func (s *IVSContract) ReadUser(ctx contractapi.TransactionContextInterface, user
 }
 
 // 更新帳號訊息
-
 func (s *IVSContract) UpdateUser(ctx contractapi.TransactionContextInterface, username string, name string) error {
 	exists, err := s.UserExists(ctx, username)
 	if err != nil {
