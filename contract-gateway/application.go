@@ -126,7 +126,7 @@ func createParts(contract *client.Contract, project model.Project) {
 		panic(fmt.Errorf("failed to marshal project: %w", err))
 	}
 	
-	EvaluateResult, err := contract.EvaluateTransaction("Insert", string(projectJSON))
+	evaluateResult, err := contract.EvaluateTransaction("Insert", string(projectJSON))
 	if err != nil {
 		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
@@ -142,7 +142,7 @@ func createParts(contract *client.Contract, project model.Project) {
 func transferProject(contract *client.Contract, projectID string, newOwnerOrganization string) {
 	fmt.Println("Evaluate Transaction: TransferProject, function transfers the ownership of a project to a new organization")
 
-	EvaluateResult, err := contract.EvaluateTransaction("TransferProject", projectID, newOwnerOrganization)
+	evaluateResult, err := contract.EvaluateTransaction("TransferProject", projectID, newOwnerOrganization)
 	if err != nil {
 		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
@@ -158,7 +158,7 @@ func transferProject(contract *client.Contract, projectID string, newOwnerOrgani
 func deleteProject(contract *client.Contract, projectID string) {
 	fmt.Println("Evaluate Transaction: Delete, function deletes a project from the ledger")
 
-	EvaluateResult, err := contract.EvaluateTransaction("Delete", projectID)
+	evaluateResult, err := contract.EvaluateTransaction("Delete", projectID)
 	if err != nil {
 		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
@@ -237,7 +237,7 @@ func selectAllWithPagination(contract *client.Contract, pageSize int32, bookmark
 func createUser(contract *client.Contract, username string, name string) {
 	fmt.Println("Evaluate Transaction: CreateUser, function creates a new user")
 
-	EvaluateResult, err := contract.EvaluateTransaction("CreateUser", username, name)
+	evaluateResult, err := contract.EvaluateTransaction("CreateUser", username, name)
 	if err != nil {
 		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
