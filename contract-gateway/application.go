@@ -27,7 +27,7 @@ func main() {
 		client.WithClientConnection(clientConnection),
 		client.WithEvaluateTimeout(5*time.Second),
 		client.WithEndorseTimeout(15*time.Second),
-		client.WithSubmitTimeout(5*time.Second),
+		client.WithEvaluateTimeout(5*time.Second),
 		client.WithCommitStatusTimeout(1*time.Minute),
 	)
 	if err != nil {
@@ -119,46 +119,55 @@ func main() {
 
 // 寫入新零件
 func createParts(contract *client.Contract, project model.Project) {
-	fmt.Println("Submit Transaction: Create, function inserts a new Parts into the ledger")
+	fmt.Println("Evaluate Transaction: Create, function inserts a new Parts into the ledger")
 
 	projectJSON, err := json.Marshal(project)
 	if err != nil {
 		panic(fmt.Errorf("failed to marshal project: %w", err))
 	}
-
-	submitResult, err := contract.SubmitTransaction("Insert", string(projectJSON))
+	
+	EvaluateResult, err := contract.EvaluateTransaction("Insert", string(projectJSON))
 	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
+		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
-	result := formatJSON(submitResult)
-
-	fmt.Printf("*** Result: %s\n", result)
+	
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+	
+	// Return the result of the transaction.
+	return EvaluateResult
 }
 
 // 轉移零件
 func transferProject(contract *client.Contract, projectID string, newOwnerOrganization string) {
-	fmt.Println("Submit Transaction: TransferProject, function transfers the ownership of a project to a new organization")
+	fmt.Println("Evaluate Transaction: TransferProject, function transfers the ownership of a project to a new organization")
 
-	submitResult, err := contract.SubmitTransaction("TransferProject", projectID, newOwnerOrganization)
+	EvaluateResult, err := contract.EvaluateTransaction("TransferProject", projectID, newOwnerOrganization)
 	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
+		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
-	result := formatJSON(submitResult)
-
-	fmt.Printf("*** Result: %s\n", result)
+	
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+	
+	// Return the result of the transaction.
+	return EvaluateResult
 }
 
 // 刪除零件
 func deleteProject(contract *client.Contract, projectID string) {
-	fmt.Println("Submit Transaction: Delete, function deletes a project from the ledger")
+	fmt.Println("Evaluate Transaction: Delete, function deletes a project from the ledger")
 
-	submitResult, err := contract.SubmitTransaction("Delete", projectID)
+	EvaluateResult, err := contract.EvaluateTransaction("Delete", projectID)
 	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
+		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
-	result := formatJSON(submitResult)
-
-	fmt.Printf("*** Result: %s\n", result)
+	
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+	
+	// Return the result of the transaction.
+	return EvaluateResult
 }
 
 // 查詢指定項目
@@ -169,9 +178,12 @@ func selectProject(contract *client.Contract, projectID string) {
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
-	result := formatJSON(evaluateResult)
 
-	fmt.Printf("*** Result: %s\n", result)
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+
+	// Return the result of the transaction.
+	return evaluateResult
 }
 
 // 查詢索引項目
@@ -180,49 +192,61 @@ func selectBySome(contract *client.Contract, key string, value string) {
 
 	evaluateResult, err := contract.EvaluateTransaction("SelectBySome", key, value)
 	if err != nil {
-		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
-	result := formatJSON(evaluateResult)
 
-	fmt.Printf("*** Result: %s\n", result)
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+
+	// Return the result of the transaction.
+	return evaluateResult
 }
 
 // 查詢全部項目
 func getAllParts(contract *client.Contract) {
-	fmt.Println("Submit Transaction: GetAllParts, function returns all the current assets on the ledger")
+	fmt.Println("Evaluate Transaction: GetAllParts, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.SubmitTransaction("SelectAll")
+	evaluateResult, err := contract.EvaluateTransaction("SelectAll")
 	if err != nil {
-		panic(fmt.Errorf("failed to Submit transaction: %w", err))
+		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
-	result := formatJSON(evaluateResult)
 
-	fmt.Printf("*** Result:%s\n", result)
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+
+	// Return the result of the transaction.
+	return evaluateResult
 }
-
 // 多頁查詢項目
 func selectAllWithPagination(contract *client.Contract, pageSize int32, bookmark string) {
 	fmt.Println("Evaluate Transaction: SelectAllWithPagination, function retrieves all projects from the ledger with pagination")
 
-	evaluateResult, err := contract.EvaluateTransaction("SelectAllWithPagination", fmt.Sprintf("%d", pageSize), bookmark)
+	evaluateResult, err := contract.EvaluateTransaction("SelectAllWithPagination", pageSize, bookmark)
 	if err != nil {
-		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
-	result := formatJSON(evaluateResult)
 
-	fmt.Printf("*** Result: %s\n", result)
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+
+	// Return the result of the transaction.
+	return evaluateResult
 }
+
 // 註冊新使用者
 func createUser(contract *client.Contract, username string, name string) {
-	fmt.Println("Submit Transaction: CreateUser, function creates a new user")
+	fmt.Println("Evaluate Transaction: CreateUser, function creates a new user")
 
-	submitResult, err := contract.SubmitTransaction("CreateUser", username, name)
+	EvaluateResult, err := contract.EvaluateTransaction("CreateUser", username, name)
 	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
+		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
-	result := formatJSON(submitResult)
 
-	fmt.Printf("*** Result: %s\n", result)
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+
+	// Return the result of the transaction.
+	return EvaluateResult
 }
 
 // 讀取使用者資訊
@@ -231,25 +255,31 @@ func readUser(contract *client.Contract, username string) {
 
 	evaluateResult, err := contract.EvaluateTransaction("ReadUser", username)
 	if err != nil {
-		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
-	result := formatJSON(evaluateResult)
 
-	fmt.Printf("*** Result: %s\n", result)
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+
+	// Return the result of the transaction.
+	return evaluateResult
 }
 	
 // 查詢全部User
 func getAllUsers(contract *client.Contract) {
-fmt.Println("Submit Transaction: GetAllUsers, function returns all the current users on the ledger")
-	evaluateResult, err := contract.SubmitTransaction("GetAllUsers")
-if err != nil {
-	panic(fmt.Errorf("failed to Submit transaction: %w", err))
+	fmt.Println("Evaluate Transaction: GetAllUsers, function returns all the current users on the ledger")
+
+	evaluateResult, err := contract.EvaluateTransaction("GetAllUsers")
+	if err != nil {
+		panic(fmt.Errorf("failed to Evaluate transaction: %w", err))
 	}
-	result := formatJSON(evaluateResult)
 
-	fmt.Printf("*** Result:%s\n", result)
+	// Use the `log.Println()` function to log the value of the `result` variable to the standard error stream.
+	log.Println("*** Result:", result)
+
+	// Return the result of the transaction.
+	return evaluateResult
 }
-
 
 func formatJSON(data []byte) string {
 	var prettyJSON bytes.Buffer
