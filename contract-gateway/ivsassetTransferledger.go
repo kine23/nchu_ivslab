@@ -223,24 +223,22 @@ func readAssetByID(contract *client.Contract) {
 // Submit transaction asynchronously, blocking until the transaction has been sent to the orderer, and allowing
 // this thread to process the chaincode response (e.g. update a UI) without waiting for the commit notification
 func transferAssetAsync(contract *client.Contract) {
-	fmt.Printf("\n--> Async Submit Transaction: TransferAsset, updates existing asset Organization")
-
-	submitResult, commit, err := contract.SubmitAsync("TransferAsset", client.WithArguments("IVSLAB-N23FA02", "Brand.co"))
+	fmt.Printf("\n--> Async Submit Transaction: TransferAsset, updates existing asset Organization and TransferDate")
+	submitResult, commit, err := contract.SubmitAsync("TransferAsset", client.WithArguments("IVSLAB-N23FA02", "2023-05-16", "Brand.co"))
 	if err != nil {
 		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
 	}
 
 	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to %d. \n", string(submitResult))
 	fmt.Println("*** Waiting for transaction commit.")
-
 	if commitStatus, err := commit.Status(); err != nil {
 		panic(fmt.Errorf("failed to get commit status: %w", err))
 	} else if !commitStatus.Successful {
 		panic(fmt.Errorf("transaction %s failed to commit with status: %d", commitStatus.TransactionID, int32(commitStatus.Code)))
 	}
-
 	fmt.Printf("*** Transaction committed successfully\n")
 }
+
 func getAssetsByRange(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: GetAssetsByRange, function returns all the current assets on the ledger")
 
