@@ -53,7 +53,7 @@ func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	}
 
 	for _, asset := range assets {
-		err := t.CreateAsset(ctx, asset.ID, asset.Manufacturer, asset.ManufactureLocation, asset.PartName, asset.SerialNumber, asset.Organization, asset.ManufactureDate)
+		err := t.CreateAsset(ctx, asset.ID, asset.Manufacturer, asset.ManufactureLocation, asset.PartName, asset.PartNumber, asset.SerialNumber, asset.Organization, asset.ManufactureDate)
 		if err != nil {
 			return err
 		}
@@ -235,6 +235,7 @@ func (t *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterfac
 		return "", err
 	}
 
+	oldOrganization := asset.Organization
 	asset.Organization = newOrganization
 
 	assetBytes, err := json.Marshal(asset)
@@ -242,7 +243,8 @@ func (t *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterfac
 		return "", err
 	}
 
-	return ctx.GetStub().PutState(assetID, assetBytes)
+	err = ctx.GetStub().PutState(assetID, assetBytes)
+	return oldOrganization, err
 }
 
 // constructQueryResponseFromIterator constructs a slice of assets from the resultsIterator
