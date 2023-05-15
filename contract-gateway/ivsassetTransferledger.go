@@ -269,12 +269,18 @@ func queryAssetsByOrganization(contract *client.Contract) {
 }
 func queryAssetsWithPagination(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: QueryAssetsWithPagination, function returns all the current assets on the ledger")
-
-	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsWithPagination", `{"selector":{"docType":"asset","organization":"Brand"}, "use_index":["_design/indexOrganizationDoc", "indexOrganization"]}`, '1', '')
-
+	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsWithPagination", `{"selector":{"docType":"asset","organization":"Brand"}, "use_index":["_design/indexOrganizationDoc", "indexOrganization"]}`, '1', "")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
+	//  Add a check here for empty result
+	if len(evaluateResult) == 0 {
+		fmt.Println("*** No assets found for the specified organization")
+		return
+	}
+	result := formatJSON(evaluateResult)
+	fmt.Printf("*** Result:%s\n", result)
+    }
 }
 func getAssetHistory(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: GetAssetHistory, function returns all the current assets on the ledger")
