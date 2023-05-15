@@ -54,7 +54,7 @@ func (s *SmartContract) InitAssets(ctx contractapi.TransactionContextInterface) 
 			return err
 		}
 
-		err = s.Insert(ctx, string(assetJSON)
+		err = s.Insert(ctx, string(assetJSON))
 		if err != nil {
 			return err
 		}
@@ -84,7 +84,7 @@ func (s *SmartContract) InitUsers(ctx contractapi.TransactionContextInterface) e
 	return nil
 }
 // 初始化智慧合約數據
-func (s *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	err := s.InitAssets(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to initialize projects: %v", err)
@@ -267,7 +267,7 @@ func (s *SmartContract) GetAllUsers(ctx contractapi.TransactionContextInterface)
 		if err != nil {
 			return nil, err
 		}
-		assets = append(user, &user)
+		user = append(user, &user)
 	}
 
 	return user, nil
