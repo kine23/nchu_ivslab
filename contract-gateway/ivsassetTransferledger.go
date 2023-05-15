@@ -275,8 +275,8 @@ func queryAssetsWithPagination(contract *client.Contract) {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
 
-	// Add a check here for empty result
-	if len(evaluateResult) == 0 {
+	// Check if result is null
+	if evaluateResult == nil {
 		fmt.Println("*** No assets found for the specified organization")
 		return
 	}
@@ -284,6 +284,7 @@ func queryAssetsWithPagination(contract *client.Contract) {
 	result := formatJSON(evaluateResult)
 	fmt.Printf("*** Result:%s\n", result)
 }
+
 func getAssetHistory(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: GetAssetHistory, function returns all the current assets on the ledger")
 
