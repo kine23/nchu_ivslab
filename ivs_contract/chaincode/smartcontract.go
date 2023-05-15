@@ -48,13 +48,13 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 		{ID: "IVSLAB23FA04", Manufacturer: "VideoCodec.co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN300AA", SerialNumber: "VSN30A10AA", Organization: "VideoCodec-Org", ManufactureDate: "2023-05-15"},
 	}
 
-	for _, assets := range assets {
-		assetsJSON, err := json.Marshal(assets)
+	for _, asset := range assets {
+		assetJSON, err := json.Marshal(asset)
 		if err != nil {
 			return err
 		}
 
-		err = ctx.GetStub().PutState(assets.ID, assetsJSON)
+		err = ctx.GetStub().PutState(asset.ID, assetJSON)
 		if err != nil {
 			return fmt.Errorf("failed to put to world state. %v", err)
 		}
@@ -65,11 +65,11 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 // InitLedger adds a base set of User to the ledger
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	user := []User{
+	users := []User{
 		{Username: "SFChen", Name: "SFChen"},
 	}
 
-	for _, user := range user {
+	for _, user := range users {
 		userJSON, err := json.Marshal(user)
 		if err != nil {
 			return err
