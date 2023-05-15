@@ -16,7 +16,7 @@ type SmartContract struct {
 // Insert struct field in alphabetic order => to achieve determinism across languages
 // golang keeps the order when marshal to json but doesn't order automatically
 // Project項目列表
-type Assets struct {
+type Asset struct {
 	Table               string `json:"table" form:"table"`  //數據庫標記
 	Manufacturer        string `json:"Manufacturer"`        //製造商
 	ManufactureLocation string `json:"ManufactureLocation"` //製造地點
@@ -203,7 +203,7 @@ func (s *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterfac
 		return "", err
 	}
 
-	return oldOwner, nil
+	return oldOrganization, nil
 }
 
 // GetAllAssets returns all assets found in world state
@@ -234,7 +234,7 @@ func (s *SmartContract) GetAllAssets(ctx contractapi.TransactionContextInterface
 	return assets, nil
 }
 // GetAllUsers returns all users found in world state
-func (s *SmartContract) GetAllUsers(ctx contractapi.TransactionContextInterface) ([]*Asset, error) {
+func (s *SmartContract) GetAllUsers(ctx contractapi.TransactionContextInterface) ([]*User, error) {
 	// range query with empty string for startKey and endKey does an
 	// open-ended query of all assets in the chaincode namespace.
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
@@ -251,7 +251,7 @@ func (s *SmartContract) GetAllUsers(ctx contractapi.TransactionContextInterface)
 		}
 
 		var user User
-		err = json.Unmarshal(queryResponse.Value, &asset)
+		err = json.Unmarshal(queryResponse.Value, &user)
 		if err != nil {
 			return nil, err
 		}
