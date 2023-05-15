@@ -42,10 +42,10 @@ type User struct {
 // InitLedger adds a base set of assets to the ledger
 func (s *SmartContract) InitAssets(ctx contractapi.TransactionContextInterface) error {
 	assets := []Asset{
-		{ID: "IVSLAB23FA01", Manufacturer: "Security.co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN300AA", SerialNumber: "SSN30A10AA", Organization: "Security-Org", ManufactureDate: "2023-05-15"},
-		{ID: "IVSLAB23FA02", Manufacturer: "Network.co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN300AA", SerialNumber: "NSN30A10AA", Organization: "Network-Org", ManufactureDate: "2023-05-15"},
-		{ID: "IVSLAB23FA03", Manufacturer: "CMOS.co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN300AA", SerialNumber: "CSN30A10AA", Organization: "CMOS-Org", ManufactureDate: "2023-05-15"},
-		{ID: "IVSLAB23FA04", Manufacturer: "VideoCodec.co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN300AA", SerialNumber: "VSN30A10AA", Organization: "VideoCodec-Org", ManufactureDate: "2023-05-15"},
+		{ID: "IVSLAB-S23FA01", Manufacturer: "Security.co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN300AA", SerialNumber: "SSN30A10AA", Organization: "Security-Org", ManufactureDate: "2023-05-15"},
+		{ID: "IVSLAB-N23FA02", Manufacturer: "Network.co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN300AA", SerialNumber: "NSN30A10AA", Organization: "Network-Org", ManufactureDate: "2023-05-15"},
+		{ID: "IVSLAB-C23FA03", Manufacturer: "CMOS.co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN300AA", SerialNumber: "CSN30A10AA", Organization: "CMOS-Org", ManufactureDate: "2023-05-15"},
+		{ID: "IVSLAB-V23FA04", Manufacturer: "VideoCodec.co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN300AA", SerialNumber: "VSN30A10AA", Organization: "VideoCodec-Org", ManufactureDate: "2023-05-15"},
 	}
 
 	for _, asset := range assets {
