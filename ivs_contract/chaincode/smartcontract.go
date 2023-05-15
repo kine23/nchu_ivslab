@@ -40,8 +40,8 @@ type User struct {
 }
 
 // InitLedger adds a base set of assets to the ledger
-func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	assets := []Assets{
+func (s *SmartContract) InitAssets(ctx contractapi.TransactionContextInterface) error {
+	assets := []Asset{
 		{ID: "IVSLAB23FA01", Manufacturer: "Security.co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN300AA", SerialNumber: "SSN30A10AA", Organization: "Security-Org", ManufactureDate: "2023-05-15"},
 		{ID: "IVSLAB23FA02", Manufacturer: "Network.co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN300AA", SerialNumber: "NSN30A10AA", Organization: "Network-Org", ManufactureDate: "2023-05-15"},
 		{ID: "IVSLAB23FA03", Manufacturer: "CMOS.co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN300AA", SerialNumber: "CSN30A10AA", Organization: "CMOS-Org", ManufactureDate: "2023-05-15"},
@@ -54,9 +54,9 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 			return err
 		}
 
-		err = ctx.GetStub().PutState(asset.ID, assetJSON)
+		err = s.Insert(ctx, string(assetJSON)
 		if err != nil {
-			return fmt.Errorf("failed to put to world state. %v", err)
+			return err
 		}
 	}
 
@@ -64,7 +64,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 }
 
 // InitLedger adds a base set of User to the ledger
-func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+func (s *SmartContract) InitUsers(ctx contractapi.TransactionContextInterface) error {
 	users := []User{
 		{Username: "SFChen", Name: "SFChen"},
 	}
@@ -83,7 +83,19 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 	return nil
 }
+// 初始化智慧合約數據
+func (s *IVSContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	err := s.InitAssets(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to initialize projects: %v", err)
+	}
+	err = s.InitUsers(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to initialize users: %v", err)
+	}
+	return nil
 
+}
 // CreateAsset issues a new asset to the world state with given details.
 func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, manufacturer string, manufactureLocation string, partname string, partnumber string, serialnumber string, organization string, manufacturedate string) error {
 	exists, err := s.AssetExists(ctx, id)
