@@ -2,16 +2,17 @@ package main
 
 import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/kine23/nchu_ivslab/ivs_contract/contract"
+	"github.com/kine23/nchu_ivslab/ivs_contract/chaincode"
 )
 
 func main() {
-	chaincode, err := contractapi.NewChaincode(&contract.IVSContract{})
+	ivsChaincode, err := contractapi.NewChaincode(&chaincode.SmartContract{})
+
 	if err != nil {
-		panic(err)
+		log.Panicf("Error creating ivs-transfer-basic chaincode: %v", err)
 	}
 
-	if err := chaincode.Start(); err != nil {
-		panic(err)
+	if err := ivsChaincode.Start(); err != nil {
+		log.Panicf("Error starting ivs-transfer-basic chaincode: %v", err)
 	}
 }
