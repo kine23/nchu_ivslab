@@ -27,7 +27,7 @@ func (o *Project) IndexKey() string {
 }
 
 func (o *Project) IndexAttr() []string {
-	return []string{o.Table, o.ID, o.Manufacturer, o.ManufactureLocation, o.PartName, o.BatchNumber, o.SerialNumber, o.ManufactureDate, o.Organization}
+	return []string{o.Table, o.ID, o.Manufacturer, o.ManufactureLocation, o.PartName, o.PartNumber, o.SerialNumber, o.ManufactureDate, o.Organization}
 }
 
 // User用戶列表
