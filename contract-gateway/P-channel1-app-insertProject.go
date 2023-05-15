@@ -59,7 +59,7 @@ type Project struct {
 		Manufacturer:        "Serurity",
 		ManufactureLocation: "Taiwan",
 		PartName:            "Serurity-Chip-V1",
-		BatchNumber:         "PNSPAQ11230098",
+		PartNumber:          "PNSPAQ11230098",
 		SerialNumber:        "SNSSAQ11230098",
 		ManufactureDate:     "2023-05-14",
 		Organization:        "Security-Org",
