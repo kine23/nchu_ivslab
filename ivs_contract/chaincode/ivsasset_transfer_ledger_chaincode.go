@@ -32,6 +32,7 @@ type Asset struct {
 	SerialNumber        string `json:"SerialNumber"`        //產品序號
 	Organization        string `json:"Organization"`        //組織
 	ManufactureDate     string `json:"ManufactureDate"`     //製造日期
+	TransferDate        string `json:"TransferDate"`        //交易日期
 //	Category            string `json:"Category"`            //所屬類別
 //	Describes           string `json:"Describes"`           //描述
 //	Developer           string `json:"Developer"`           //開發者
@@ -228,23 +229,28 @@ func (t *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface,
 	return ctx.GetStub().DelState(ivsIndexKey)
 }
 
-// TransferAsset updates the owner field of asset with given id in world state, and returns the old owner.
-func (t *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterface, assetID, newOrganization string) (string, error) {
+// TransferAsset updates the Organization and TransferDate field of asset with given id in world state, and returns the old Organization.
+func (t *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterface, assetID, assetTransferDate string, newOrganization string) (string, error) {
 	asset, err := t.ReadAsset(ctx, assetID)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to read asset: %v", err)
 	}
 
 	oldOrganization := asset.Organization
 	asset.Organization = newOrganization
-
+	asset.TransferDate = assetTransferDate
+	
 	assetBytes, err := json.Marshal(asset)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to marshal asset: %v", err)
 	}
 
 	err = ctx.GetStub().PutState(assetID, assetBytes)
-	return oldOrganization, err
+	if err != nil {
+		return "", fmt.Errorf("failed to update asset: %v", err)
+	}
+
+	return oldOrganization, nil
 }
 
 // constructQueryResponseFromIterator constructs a slice of assets from the resultsIterator
