@@ -54,7 +54,7 @@ func (s *SmartContract) InitAssets(ctx contractapi.TransactionContextInterface) 
 			return err
 		}
 
-		err = s.Insert(ctx, string(assetJSON))
+		err = ctx.GetStub().PutState(asset.ID, assetJSON)
 		if err != nil {
 			return err
 		}
@@ -255,7 +255,7 @@ func (s *SmartContract) GetAllUsers(ctx contractapi.TransactionContextInterface)
 	}
 	defer resultsIterator.Close()
 
-	var user []*User
+	var users []*User
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
@@ -267,8 +267,8 @@ func (s *SmartContract) GetAllUsers(ctx contractapi.TransactionContextInterface)
 		if err != nil {
 			return nil, err
 		}
-		user = append(user, &user)
+		users = append(users, &user)
 	}
 
-	return user, nil
+	return users, nil
 }
