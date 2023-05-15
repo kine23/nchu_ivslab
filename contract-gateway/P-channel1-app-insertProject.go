@@ -73,7 +73,7 @@ type Project struct {
 //	fmt.Println("getAllUsers:")
 //	getAllUsers(contract)
 }
-func insertProject(contract *client.Contract, project model.Project) { 
+func insertProject(contract *client.Contract, project Project) { 
 	fmt.Println("Submit Transaction: Insert, function inserts a new project into the ledger")
 
 	projectJSON, err := json.Marshal(project)
