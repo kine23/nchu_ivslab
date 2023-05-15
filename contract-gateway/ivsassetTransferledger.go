@@ -243,7 +243,7 @@ func transferAssetAsync(contract *client.Contract) {
 func getAssetsByRange(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: GetAssetsByRange, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("GetAssetsByRange", "IVSLAB-S23FA01", "IVSLAB-S23FA02")
+	evaluateResult, err := contract.EvaluateTransaction("GetAssetsByRange", "IVSLAB-S23FA01", " ")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
@@ -254,10 +254,16 @@ func getAssetsByRange(contract *client.Contract) {
 func queryAssetsByOrganization(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: QueryAssetsByOrganization, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsByOrganization", "Network.co")
+	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsByOrganization", "Network-Org")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
+	// Add a check here for empty result
+	if len(evaluateResult) == 0 {
+		fmt.Println("*** No assets found for the specified organization")
+		return
+	}
+
 	result := formatJSON(evaluateResult)
 
 	fmt.Printf("*** Result:%s\n", result)
