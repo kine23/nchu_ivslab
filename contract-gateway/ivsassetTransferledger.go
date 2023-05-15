@@ -198,7 +198,7 @@ func getAllAssets(contract *client.Contract) {
 func createAsset(contract *client.Contract) {
 	fmt.Printf("\n--> Submit Transaction: CreateAsset, creates new asset with ID, Manufacturer, ManufactureLocation, PartName, PartNumber, SerialNumber, Organization, ManufactureDate\n")
 
-	_, err := contract.SubmitTransaction("CreateAsset", "IVSLAB-S23FA02", "Security.co", "Taiwan", "SecurityChip-v1", "SPN301AA", "SSN30A11AA", "Security-Org", "2023-05-15")
+	_, err := contract.SubmitTransaction("CreateAsset", "IVSLAB-N23FA02", "Network.co", "Taiwan", "NetworkChip-v1", "NPN301AA", "NSN30A11AA", "Network-Org", "2023-05-15")
 	if err != nil {
 		panic(fmt.Errorf("failed to submit transaction: %w", err))
 	}
@@ -210,7 +210,7 @@ func createAsset(contract *client.Contract) {
 func readAssetByID(contract *client.Contract) {
 	fmt.Printf("\n--> Evaluate Transaction: ReadAsset, function returns asset attributes\n")
 
-	evaluateResult, err := contract.EvaluateTransaction("ReadAsset", "IVSLAB-S23FA01")
+	evaluateResult, err := contract.EvaluateTransaction("ReadAsset", "IVSLAB-N23FA02")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
@@ -224,12 +224,12 @@ func readAssetByID(contract *client.Contract) {
 func transferAssetAsync(contract *client.Contract) {
 	fmt.Printf("\n--> Async Submit Transaction: TransferAsset, updates existing asset Organization")
 
-	submitResult, commit, err := contract.SubmitAsync("TransferAsset", client.WithArguments("IVSLAB-S23FA01", "Brand.co"))
+	submitResult, commit, err := contract.SubmitAsync("TransferAsset", client.WithArguments("IVSLAB-N23FA02", "Brand.co"))
 	if err != nil {
 		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
 	}
 
-	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to Mark. \n", string(submitResult))
+	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to %d. \n", string(submitResult))
 	fmt.Println("*** Waiting for transaction commit.")
 
 	if commitStatus, err := commit.Status(); err != nil {
@@ -243,7 +243,7 @@ func transferAssetAsync(contract *client.Contract) {
 func getAssetsByRange(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: GetAssetsByRange, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("GetAssetsByRange", "IVSLAB-S23FA01", " ")
+	evaluateResult, err := contract.EvaluateTransaction("GetAssetsByRange", "IVSLAB-N23FA01", "IVSLAB-N23FA03")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
@@ -271,7 +271,7 @@ func queryAssetsByOrganization(contract *client.Contract) {
 func getAssetHistory(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: GetAssetHistory, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("GetAssetHistory", "IVSLAB-S23FA01")
+	evaluateResult, err := contract.EvaluateTransaction("GetAssetHistory", "IVSLAB-N23FA02")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
