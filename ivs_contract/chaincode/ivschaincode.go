@@ -164,6 +164,30 @@ func DeleteStateAndCompositeKey(ctx contractapi.TransactionContextInterface, obj
 	return ctx.GetStub().DelState(compositeKey)
 }
 
+// CheckExists returns true when part with given ID exists in world state.
+func (t *SmartContract) checkExistence(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+	err := CheckRole(ctx, RoleAdmin)
+	if err != nil {
+		return false, err
+	}
+	bytes, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return false, fmt.Errorf("failed to read from world state. %v", err)
+	}
+
+	return bytes != nil, nil
+}
+
+// PartExists returns true when part with given ID exists in world state.
+func (t *SmartContract) PartExists(ctx contractapi.TransactionContextInterface, partID string) (bool, error) {
+	return t.checkExistence(ctx, partID)
+}
+
+// AssetExists returns true when asset with given ID exists in world state
+func (t *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface, assetID string) (bool, error) {
+	return t.checkExistence(ctx, assetID)
+}
+
 // CreateItem initializes a new item in the ledger.
 func (t *SmartContract) createItem(ctx contractapi.TransactionContextInterface, id string, item interface{}) error {
 	err := CheckRole(ctx, RoleAdmin)
@@ -171,7 +195,7 @@ func (t *SmartContract) createItem(ctx contractapi.TransactionContextInterface, 
 		return err
 	}
 
-	exists, err := checkExistence(ctx, id)
+	exists, err := t.checkExistence(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -254,7 +278,7 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 	var part Part
 	err = json.Unmarshal(partBytes, &part)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal part %s: %v", string(partBytes), err)
+		return "", fmt.Errorf("failed to unmarshal part %s: %v", string(partBytes), err)
 	}
 
 	oldOrganization := part.Organization
@@ -548,20 +572,17 @@ func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionConte
 }
 
 func queryItemsWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int, bookmark string, objectType reflect.Type) (*PaginatedQueryResult, error) {
-	items, responseMetadata, err := getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark, objectType)
+	paginatedQueryResult, err := getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark, objectType)
 	if err != nil {
 		return nil, err
 	}
 
-	return &PaginatedQueryResult{
-		Records:             items,
-		FetchedRecordsCount: responseMetadata.FetchedRecordsCount,
-		Bookmark:            responseMetadata.Bookmark,
-	}, nil
+	return paginatedQueryResult, nil
 }
 
 func (t *SmartContract) GetAssetsByRangeWithPagination(ctx contractapi.TransactionContextInterface, startKey string, endKey string, pageSize int, bookmark string) (*PaginatedQueryResult, error) {
-	return queryItemsWithPagination(ctx, startKey, endKey, pageSize, bookmark, reflect.TypeOf(Asset{}))
+	queryString := fmt.Sprintf(`{"selector":{"SerialNumber":{"$gte":"%s","$lte":"%s"}}}`, startKey, endKey)
+	return queryItemsWithPagination(ctx, queryString, pageSize, bookmark, reflect.TypeOf(Asset{}))
 }
 
 func (t *SmartContract) QueryAssetsWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int, bookmark string) (*PaginatedQueryResult, error) {
@@ -612,28 +633,4 @@ func (t *SmartContract) GetAssetHistory(ctx contractapi.TransactionContextInterf
 	}
 
 	return records, nil
-}
-
-// CheckExists returns true when part with given ID exists in world state.
-func (t *SmartContract) checkExistence(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-	err := CheckRole(ctx, RoleAdmin)
-	if err != nil {
-		return false, err
-	}
-	bytes, err := ctx.GetStub().GetState(id)
-	if err != nil {
-		return false, fmt.Errorf("failed to read from world state. %v", err)
-	}
-
-	return bytes != nil, nil
-}
-
-// PartExists returns true when part with given ID exists in world state.
-func (t *SmartContract) PartExists(ctx contractapi.TransactionContextInterface, partID string) (bool, error) {
-	return t.checkExistence(ctx, partID)
-}
-
-// AssetExists returns true when asset with given ID exists in world state
-func (t *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface, assetID string) (bool, error) {
-	return t.checkExistence(ctx, assetID)
 }
