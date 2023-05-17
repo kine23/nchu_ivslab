@@ -11,7 +11,7 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-const index = "manufacturer~manufacturelocation~serialnumber"
+const index = "madein~serialnumber"
 const (RoleAdmin = "admin")
 
 // SmartContract provides functions for managing an Asset
@@ -499,6 +499,31 @@ func (t *SmartContract) QueryAssets(ctx contractapi.TransactionContextInterface,
 	}
 
 	return assets.([]*Asset), nil
+}
+
+func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string, objectType reflect.Type) ([]interface{}, *peer.QueryResponseMetadata, error) {
+	resultsIterator, responseMetadata, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer resultsIterator.Close()
+
+	var items []interface{}
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, nil, err
+		}
+
+		var item interface{}
+		if err := json.Unmarshal(queryResponse.Value, &item); err != nil {
+			return nil, nil, err
+		}
+
+		items = append(items, item)
+	}
+
+	return items, responseMetadata, nil
 }
 
 func queryItemsWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int, bookmark string, objectType reflect.Type) (*PaginatedQueryResult, error) {
