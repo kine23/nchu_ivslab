@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log"
 	"time"
+	"reflect"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"github.com/hyperledger/fabric/peer"
 )
 
 const index = "madein~serialnumber"
