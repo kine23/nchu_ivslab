@@ -10,7 +10,6 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/hyperledger/fabric/peer"
 )
 
 const index = "madein~serialnumber"
@@ -523,29 +522,29 @@ func (t *SmartContract) QueryAssets(ctx contractapi.TransactionContextInterface,
 	return assets.([]*Asset), nil
 }
 
-func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string, objectType reflect.Type) ([]interface{}, *peer.QueryResponseMetadata, error) {
+func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string, objectType reflect.Type) (*PaginatedQueryResult, error) {
 	resultsIterator, responseMetadata, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer resultsIterator.Close()
 
-	var items []interface{}
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return nil, nil, err
-		}
-
-		var item interface{}
-		if err := json.Unmarshal(queryResponse.Value, &item); err != nil {
-			return nil, nil, err
-		}
-
-		items = append(items, item)
+	data, err := constructQueryResponseFromIterator(resultsIterator, objectType)
+	if err != nil {
+		return nil, err
 	}
 
-	return items, responseMetadata, nil
+	// Convert the data to a slice of *Asset
+	items, ok := data.([]*Asset)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert data to []*Asset")
+	}
+
+	return &PaginatedQueryResult{
+		Records:             items,
+		FetchedRecordsCount: responseMetadata.FetchedRecordsCount,
+		Bookmark:            responseMetadata.Bookmark,
+	}, nil
 }
 
 func queryItemsWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int, bookmark string, objectType reflect.Type) (*PaginatedQueryResult, error) {
