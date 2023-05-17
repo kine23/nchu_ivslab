@@ -77,12 +77,19 @@ func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 		}
 	}
 
-	// Based on the initialized parts, create an Asset.
-	// Assuming the parts are the first three in the parts slice.
+	// Transfer the parts to Brand-Org
+	for _, part := range parts {
+		_, err := t.TransferPart(ctx, part.PID, "2023-05-15", "Brand-Org")
+		if err != nil {
+			return err
+		}
+	}
+
+	// Create an asset with the transferred parts
 	asset := Asset{
 		ID:                  	"IVSLAB-PVC23FG0001", 
-		MadeBy:        			"Brand.Co", 
-		MadeIn: 				"Taiwan", 
+		MadeBy:        		"Brand.Co", 
+		MadeIn: 		"Taiwan", 
 		SerialNumber:           "IVSPN902300AACDC01", 
 		SecurityChip:        	parts[0], 
 		NetworkChip:         	parts[1], 
@@ -156,7 +163,7 @@ func DeleteStateAndCompositeKey(ctx contractapi.TransactionContextInterface, obj
 	return ctx.GetStub().DelState(compositeKey)
 }
 
-// CreateItem initializes a new item in the ledger
+// CreateItem initializes a new item in the ledger.
 func (t *SmartContract) createItem(ctx contractapi.TransactionContextInterface, id string, item interface{}) error {
 	err := CheckRole(ctx, RoleAdmin)
 	if err != nil {
@@ -189,7 +196,7 @@ func (t *SmartContract) createItem(ctx contractapi.TransactionContextInterface, 
 	return CreateCompositeKeyAndPutState(ctx, index, attributes, id, dataBytes)
 }
 
-// CreatePart initializes a new part in the ledger
+// CreatePart initializes a new part in the ledger.
 func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, partID, manufacturer string, manufacturelocation string, partname string, partnumber string, manufacturedate string, organization string) error {
 	part := &Part{
 		DocType:             "part",
@@ -204,23 +211,36 @@ func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, 
 
 	return t.createItem(ctx, partID, part)
 }
+// CreateAsset initializes a new part in the ledger.
+func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, madeBy string, madeIn string, serialNumber string, securityChip Part, networkChip Part, cmosChip Part, videoCodecChip Part, productionDate string) error {
+	// Ensure all parts belong to 'Brand-Org'
+	parts := []Part{securityChip, networkChip, cmosChip, videoCodecChip}
+	for _, part := range parts {
+		if part.Organization != "Brand-Org" {
+			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
+		}
+	}
 
-// CreateAsset initializes a new asset in the ledger
-func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securityChip Part, networkChip Part, cmosChip Part, videocodecchip Part, productiondate string) error {
-	asset := &Asset{
-		DocType:         "asset",
-		ID:              assetID,
-		MadeBy:          madeby,
-		MadeIn:          madein,
-		SerialNumber:    serialnumber,
+	// Create the asset
+	asset := Asset{
+		ID:              id,
+		MadeBy:          madeBy,
+		MadeIn:          madeIn,
+		SerialNumber:    serialNumber,
 		SecurityChip:    securityChip,
 		NetworkChip:     networkChip,
 		CMOSChip:        cmosChip,
-		VideoCodecChip:  videocodecchip,
-		ProductionDate:  productiondate,
+		VideoCodecChip:  videoCodecChip,
+		ProductionDate:  productionDate,
+	}
+	assetJSON, err := json.Marshal(asset)
+	if err != nil {
+		return err
 	}
 
-	return t.createItem(ctx, assetID, asset)
+	// Use CreateCompositeKeyAndPutState to put the asset into the state
+	attributes := []string{madeBy, id}
+	return CreateCompositeKeyAndPutState(ctx, "asset", attributes, id, assetJSON)
 }
 
 // TransferPart updates the Organization field of Part with given partID in world state, and returns the old Organization.
