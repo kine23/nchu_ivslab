@@ -85,6 +85,70 @@ func main() {
 	queryAssetsWithPagination(contract)
 	getAssetHistory(contract)
 	exampleErrorHandling(contract)
+	
+	createPart(contract, PartArgs{
+    	PID: "IVSLAB-S23FA0002",
+    	Manufacturer: "Security.Co",
+    	ManufactureLocation: "Taiwan",
+    	PartName: "SecurityChip-v1",
+    	PartNumber: "SPN3R1C00AA2",
+    	Organization: "Security-Org",
+    	ManufactureDate: "2023-05-17",
+	})
+
+	createPart(contract, PartArgs{
+    	PID: "IVSLAB-N23FA0002",
+    	Manufacturer: "Network.Co",
+    	ManufactureLocation: "Taiwan",
+    	PartName: "NetworkChip-v1",
+    	PartNumber: "NPN3R1C00AA2",
+    	Organization: "Network-Org",
+    	ManufactureDate: "2023-05-17",
+	})
+
+	createPart(contract, PartArgs{
+    	PID: "IVSLAB-C23FA0002",
+    	Manufacturer: "CMOS.Co",
+    	ManufactureLocation: "USA",
+    	PartName: "CMOSChip-v1",
+    	PartNumber: "CPN3R1C00AA2",
+    	Organization: "CMOS-Org",
+    	ManufactureDate: "2023-05-17",
+	})
+
+	createPart(contract, PartArgs{
+    	PID: "IVSLAB-V23FA0002",
+    	Manufacturer: "VideoCodec.Co",
+   	ManufactureLocation: "USA",
+    	PartName: "VideoCodecChip-v1",
+    	PartNumber: "VPN3R1C00AA2",
+    	Organization: "VideoCodec-Org",
+    	ManufactureDate: "2023-05-17",
+	})
+	
+	transferPartAsync(contract, TransferPartArgs{
+    	PID: "IVSLAB-S23FA0002",
+    	Organization: "Brand-Org",
+    	ManufactureDate: "2023-05-17",
+	})
+
+	transferPartAsync(contract, TransferPartArgs{
+    	PID: "IVSLAB-N23FA0002",
+    	Organization: "Brand-Org",
+    	ManufactureDate: "2023-05-17",
+	})
+
+	transferPartAsync(contract, TransferPartArgs{
+    	PID: "IVSLAB-C23FA0002",
+    	Organization: "Brand-Org",
+    	ManufactureDate: "2023-05-17",
+	})
+
+	transferPartAsync(contract, TransferPartArgs{
+    	PID: "IVSLAB-V23FA0002",
+    	Organization: "Brand-Org",
+    	ManufactureDate: "2023-05-17",
+	})	
 }
 
 // newGrpcConnection creates a gRPC connection to the Gateway server.
@@ -210,46 +274,6 @@ func createPart(contract *client.Contract, args PartArgs) {
     fmt.Printf("*** Transaction committed successfully\n")
 }
 
-createPart(contract, PartArgs{
-    PID: "IVSLAB-S23FA0002",
-    Manufacturer: "Security.Co",
-    ManufactureLocation: "Taiwan",
-    PartName: "SecurityChip-v1",
-    PartNumber: "SPN3R1C00AA2",
-    Organization: "Security-Org",
-    ManufactureDate: "2023-05-17",
-})
-
-createPart(contract, PartArgs{
-    PID: "IVSLAB-N23FA0002",
-    Manufacturer: "Network.Co",
-    ManufactureLocation: "Taiwan",
-    PartName: "NetworkChip-v1",
-    PartNumber: "NPN3R1C00AA2",
-    Organization: "Network-Org",
-    ManufactureDate: "2023-05-17",
-})
-
-createPart(contract, PartArgs{
-    PID: "IVSLAB-C23FA0002",
-    Manufacturer: "CMOS.Co",
-    ManufactureLocation: "USA",
-    PartName: "CMOSChip-v1",
-    PartNumber: "CPN3R1C00AA2",
-    Organization: "CMOS-Org",
-    ManufactureDate: "2023-05-17",
-})
-
-createPart(contract, PartArgs{
-    PID: "IVSLAB-V23FA0002",
-    Manufacturer: "VideoCodec.Co",
-    ManufactureLocation: "USA",
-    PartName: "VideoCodecChip-v1",
-    PartNumber: "VPN3R1C00AA2",
-    Organization: "VideoCodec-Org",
-    ManufactureDate: "2023-05-17",
-})
-
 type TransferPartArgs struct {
     PID                  string
     Organization         string
@@ -272,30 +296,6 @@ func transferPartAsync(contract *client.Contract, args TransferPartArgs) {
 	}
 	fmt.Printf("*** Transaction committed successfully\n")
 }
-
-transferPartAsync(contract, TransferPartArgs{
-    PID: "IVSLAB-S23FA0002",
-    Organization: "Brand-Org",
-    ManufactureDate: "2023-05-17",
-})
-
-transferPartAsync(contract, TransferPartArgs{
-    PID: "IVSLAB-N23FA0002",
-    Organization: "Brand-Org",
-    ManufactureDate: "2023-05-17",
-})
-
-transferPartAsync(contract, TransferPartArgs{
-    PID: "IVSLAB-C23FA0002",
-    Organization: "Brand-Org",
-    ManufactureDate: "2023-05-17",
-})
-
-transferPartAsync(contract, TransferPartArgs{
-    PID: "IVSLAB-V23FA0002",
-    Organization: "Brand-Org",
-    ManufactureDate: "2023-05-17",
-})
 
 // Submit a transaction synchronously, blocking until it has been committed to the ledger.
 func createAsset(contract *client.Contract) {
