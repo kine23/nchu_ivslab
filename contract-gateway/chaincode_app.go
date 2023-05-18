@@ -20,13 +20,13 @@ import (
 )
 
 const (
-	mspID="brandMSP"														//所屬組織的MSPID
-	cryptoPath= "/root/MyLab_IVS/organizations/brand.ivsorg.net"			// 中間變量
-	certPath= cryptoPath + "/registers_users/admin1/msp/signcerts/cert.pem"	// client數位簽章
-	keyPath= cryptoPath + "/registers_users/admin1/msp/keystore/"			// client私鑰路徑
-	tlsCertPath= cryptoPath + "/alliance/tls-ca-cert.pem"					// client tls證書
-	peerEndpoint= "peer1.brand.ivsorg.net:7151"								// peer節點地址
-	gatewayPeer= "peer1.brand.ivsorg.net"									// peer節點名稱
+	mspID="brandMSP"							//所屬組織的MSPID
+	cryptoPath= "/root/MyLab_IVS/organizations/brand.ivsorg.net"		// 中間變量
+	certPath= cryptoPath + "/registers_users/user1/msp/signcerts/cert.pem"	// client數位簽章
+	keyPath= cryptoPath + "/registers_users/user1/msp/keystore/"		// client私鑰路徑
+	tlsCertPath= cryptoPath + "/alliance/tls-ca-cert.pem"			// client tls證書
+	peerEndpoint= "peer1.brand.ivsorg.net:7151"				// peer節點地址
+	gatewayPeer= "peer1.brand.ivsorg.net"					// peer節點名稱
 )
 
 var now = time.Now()
