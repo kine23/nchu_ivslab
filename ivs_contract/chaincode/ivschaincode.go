@@ -5,22 +5,100 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"reflect"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-const index = "madein~serialnumber"
-const (RoleAdmin = "admin")
+const index = "manufacturer~manufacturelocation~serialnumber"
 
 // SmartContract provides functions for managing an Asset
 type SmartContract struct {
 	contractapi.Contract
 }
 
-// HistoryQueryResult structure used for returning result of history query.
+// Asset describes basic details of what makes up a simple asset
+// Insert struct field in alphabetic order => to achieve determinism across languages
+// golang keeps the order when marshal to json but doesn't order automatically
+// Project項目列表
+type Asset struct {
+	DocType        	string `json:"docType"` 	      //docType is used to distinguish the various types of objects in state database
+	ID                  string `json:"ID"`                  //項目唯一ID
+	Manufacturer        string `json:"Manufacturer"`        //製造商
+	ManufactureLocation string `json:"ManufactureLocation"` //製造地點
+	PartName            string `json:"PartName"`            //零件名稱
+	PartNumber          string `json:"PartNumber"`          //零件批號
+	SerialNumber        string `json:"SerialNumber"`        //產品序號
+	Organization        string `json:"Organization"`        //組織
+	ManufactureDate     string `json:"ManufactureDate"`     //製造日期
+	TransferDate	string `json:"TransferDate"`        //交易日期
+//	Category            string `json:"Category"`            //所屬類別
+//	Describes           string `json:"Describes"`           //描述
+//	Developer           string `json:"Developer"`           //開發者
+}
+
+// User用戶列表
+//type User struct {
+//	Username string `json:"username" form:"username"` //用戶帳號
+//	Name     string `json:"name" form:"name"`         //姓名
+//}
+
+// InitLedger adds a base set of assets to the ledger
+func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	assets := []Asset{
+		{ID: "IVSLAB-S23FA01", Manufacturer: "Security.co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN300AA", SerialNumber: "SSN30A10AA", Organization: "Security-Org", ManufactureDate: "2023-05-15"},
+		{ID: "IVSLAB-N23FA01", Manufacturer: "Network.co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN300AA", SerialNumber: "NSN30A10AA", Organization: "Network-Org", ManufactureDate: "2023-05-15"},
+		{ID: "IVSLAB-C23FA01", Manufacturer: "CMOS.co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN300AA", SerialNumber: "CSN30A10AA", Organization: "CMOS-Org", ManufactureDate: "2023-05-15"},
+		{ID: "IVSLAB-V23FA01", Manufacturer: "VideoCodec.co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN300AA", SerialNumber: "VSN30A10AA", Organization: "VideoCodec-Org", ManufactureDate: "2023-05-15"},
+	}
+
+	for _, asset := range assets {
+		err := t.CreateAsset(ctx, asset.ID, asset.Manufacturer, asset.ManufactureLocation, asset.PartName, asset.PartNumber, asset.SerialNumber, asset.Organization, asset.ManufactureDate)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// InitLedger adds a base set of User to the ledger
+//func (t *SmartContract) InitUsers(ctx contractapi.TransactionContextInterface) error {
+//	users := []User{
+//		{Username: "SFChen", Name: "SFChen"},
+//	}
+//
+//	for _, user := range users {
+//		userJSON, err := json.Marshal(user)
+//		if err != nil {
+//			return err
+//		}
+//
+//		err = ctx.GetStub().PutState(user.Username, userJSON)
+//		if err != nil {
+//			return fmt.Errorf("failed to put to world state. %v", err)
+//		}
+//	}
+//
+//	return nil
+//}
+// 初始化智慧合約數據
+//func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+//	err := s.InitAssets(ctx)
+//	if err != nil {
+//		return fmt.Errorf("failed to initialize projects: %v", err)
+//	}
+//
+//	err = s.InitUsers(ctx)
+//	if err != nil {
+//		return fmt.Errorf("failed to initialize users: %v", err)
+//	}
+//
+//	return nil
+//}
+
+// HistoryQueryResult structure used for returning result of history query
 type HistoryQueryResult struct {
 	Record    *Asset    `json:"record"`
 	TxId      string    `json:"txId"`
@@ -28,530 +106,266 @@ type HistoryQueryResult struct {
 	IsDelete  bool      `json:"isDelete"`
 }
 
-// PaginatedQueryResult structure used for returning paginated query results and metadata.
+// PaginatedQueryResult structure used for returning paginated query results and metadata
 type PaginatedQueryResult struct {
 	Records             []*Asset `json:"records"`
 	FetchedRecordsCount int32    `json:"fetchedRecordsCount"`
 	Bookmark            string   `json:"bookmark"`
 }
 
-// Part represents a product in the ledger.
-type Part struct {
-	DocType             string `json:"docType"`             // DocType is used to distinguish the various types of objects in state database
-	PID					string `json:"PID"`					// 零件唯ID
-	Manufacturer        string `json:"Manufacturer"`        // 製造商
-	ManufactureLocation string `json:"ManufactureLocation"` // 製造地點
-	PartName            string `json:"PartName"`            // 零件名稱
-	PartNumber          string `json:"PartNumber"`          // 零件批號
-	Organization        string `json:"Organization"`        // 組織
-	ManufactureDate     string `json:"ManufactureDate"`     // 零件製造日期
-	TransferDate        string `json:"TransferDate"`        // 零件交易日期
-}
-
-// Asset represents a product in the ledger.
-type Asset struct {
-	DocType             string `json:"docType"`             // DocType is used to distinguish the various types of objects in state database
-	ID                	string `json:"ID"`                	// 項目唯一ID
-	MadeBy        		string `json:"MadeBy"`        		// 品牌商
-	MadeIn 				string `json:"MadeIn"` 				// 組裝地點
-	SerialNumber        string `json:"SerialNumber"`        // 產品序號
-	SecurityChip        Part   `json:"SecurityChip"`        // 安全晶片組織
-	NetworkChip         Part   `json:"NetworkChip"`         // 網路晶片組織
-	CMOSChip            Part   `json:"CMOSChip"`            // CMOS晶片組織
-	VideoCodecChip		Part   `json:"VideoCodecChip"`      // VideoCodec晶片組織
-	ProductionDate      string `json:"ProductionDate"`      // 產品生產日期
-}
-
-// InitLedger adds a base set of parts to the ledger.
-func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	parts := []Part{
-		{PID: "IVSLAB-S23FA0001", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA1", ManufactureDate: "2023-05-15", Organization: "Security-Org"},
-		{PID: "IVSLAB-N23FA0001", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA1", ManufactureDate: "2023-05-15", Organization: "Network-Org"},
-		{PID: "IVSLAB-C23FA0001", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA1", ManufactureDate: "2023-05-15", Organization: "CMOS-Org"},
-		{PID: "IVSLAB-V23FA0001", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA1", ManufactureDate: "2023-05-15", Organization: "VideoCodec-Org"},
-	}
-
-	for _, part := range parts {
-		err := t.CreatePart(ctx, part.PID, part.Manufacturer, part.ManufactureLocation, part.PartName, part.PartNumber, part.ManufactureDate, part.Organization)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Transfer the parts to Brand-Org
-	for _, part := range parts {
-		_, err := t.TransferPart(ctx, part.PID, "2023-05-15", "Brand-Org")
-		if err != nil {
-			return err
-		}
-	}
-
-	// Create an asset with the transferred parts
-	asset := Asset{
-		ID:                  	"IVSLAB-PVC23FG0001", 
-		MadeBy:        		"Brand.Co", 
-		MadeIn: 		"Taiwan", 
-		SerialNumber:           "IVSPN902300AACDC01", 
-		SecurityChip:        	parts[0], 
-		NetworkChip:         	parts[1], 
-		CMOSChip:            	parts[2], 
-		VideoCodecChip:         parts[3], 
-		ProductionDate:        	"2023-05-15",
-	}
-
-	err := t.CreateAsset(ctx, asset.ID, asset.MadeBy, asset.MadeIn, asset.SerialNumber, asset.SecurityChip, asset.NetworkChip, asset.CMOSChip, asset.VideoCodecChip, asset.ProductionDate)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// RetrieveData checks the role and retrieves the data.
-func RetrieveData(ctx contractapi.TransactionContextInterface, ID string) ([]byte, error) {
-	dataBytes, err := ctx.GetStub().GetState(ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read from world state: %v", err)
-	}
-	if dataBytes == nil {
-		return nil, fmt.Errorf("the data %s does not exist", ID)
-	}
-	return dataBytes, nil
-}
-
-// CreateCompositeKeyAndPutState creates a composite key and puts it into the state.
-func CreateCompositeKeyAndPutState(ctx contractapi.TransactionContextInterface, objectType string, attributes []string, ID string, dataBytes []byte) error {
-	err := ctx.GetStub().PutState(ID, dataBytes)
-	if err != nil {
-		return err
-	}
-	compositeKey, err := ctx.GetStub().CreateCompositeKey(objectType, attributes)
-	if err != nil {
-		return err
-	}
-	value := []byte{0x00}
-	return ctx.GetStub().PutState(compositeKey, value)
-}
-
-// DeleteStateAndCompositeKey deletes the state and the composite key.
-func DeleteStateAndCompositeKey(ctx contractapi.TransactionContextInterface, objectType string, attributes []string, ID string) error {
-	err := ctx.GetStub().DelState(ID)
-	if err != nil {
-		return fmt.Errorf("failed to delete data %s: %v", ID, err)
-	}
-	compositeKey, err := ctx.GetStub().CreateCompositeKey(objectType, attributes)
-	if err != nil {
-		return err
-	}
-	// Delete index entry
-	return ctx.GetStub().DelState(compositeKey)
-}
-
-// CheckExists returns true when part with given ID exists in world state.
-func (t *SmartContract) checkExistence(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-	bytes, err := ctx.GetStub().GetState(id)
-	if err != nil {
-		return false, fmt.Errorf("failed to read from world state. %v", err)
-	}
-
-	return bytes != nil, nil
-}
-
-// PartExists returns true when part with given ID exists in world state.
-func (t *SmartContract) PartExists(ctx contractapi.TransactionContextInterface, partID string) (bool, error) {
-	return t.checkExistence(ctx, partID)
-}
-
-// AssetExists returns true when asset with given ID exists in world state
-func (t *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface, assetID string) (bool, error) {
-	return t.checkExistence(ctx, assetID)
-}
-
-// CreateItem initializes a new item in the ledger.
-func (t *SmartContract) createItem(ctx contractapi.TransactionContextInterface, id string, item interface{}) error {
-	exists, err := t.checkExistence(ctx, id)
+// CreateAsset initializes a new asset in the ledger
+func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, assetID string, manufacturer string, manufacturelocation string, partname string, partnumber string, serialnumber string, organization string, manufacturedate string) error {
+	exists, err := t.AssetExists(ctx, assetID)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf("the item %s already exists", id)
+		return fmt.Errorf("the asset %s already exists", assetID)
 	}
 
-	dataBytes, err := json.Marshal(item)
-	if err != nil {
-		return fmt.Errorf("failed to marshal data %v: %v", item, err)
+	asset := &Asset{
+		DocType:        		"asset",
+		ID:             		assetID,
+		Manufacturer:          	manufacturer,
+		ManufactureLocation:          manufacturelocation,
+		PartName:          		partname,
+		PartNumber: 		partnumber,
+		SerialNumber:		serialnumber,
+		Organization:		organization,
+		ManufactureDate:		manufacturedate,
 	}
-
-	var attributes []string
-	switch v := item.(type) {
-	case *Part:
-		attributes = []string{v.Manufacturer, v.PID}
-	case *Asset:
-		attributes = []string{v.MadeBy, v.ID}
-	default:
-		return fmt.Errorf("unknown data type: %v", reflect.TypeOf(item))
-	}
-
-	return CreateCompositeKeyAndPutState(ctx, index, attributes, id, dataBytes)
-}
-
-// CreatePart initializes a new part in the ledger.
-func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, partID, manufacturer string, manufacturelocation string, partname string, partnumber string, manufacturedate string, organization string) error {
-	part := &Part{
-		DocType:             "part",
-		PID:                 partID,
-		Manufacturer:        manufacturer,
-		ManufactureLocation: manufacturelocation,
-		PartName:            partname,
-		PartNumber:          partnumber,
-		Organization:        organization,
-		ManufactureDate:     manufacturedate,
-	}
-
-	return t.createItem(ctx, partID, part)
-}
-// CreateAsset initializes a new part in the ledger.
-func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, madeBy string, madeIn string, serialNumber string, securityChip Part, networkChip Part, cmosChip Part, videoCodecChip Part, productionDate string) error {
-	// Ensure all parts belong to 'Brand-Org'
-	parts := []Part{securityChip, networkChip, cmosChip, videoCodecChip}
-	for _, part := range parts {
-		if part.Organization != "Brand-Org" {
-			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
-		}
-	}
-
-	// Create the asset
-	asset := Asset{
-		ID:              id,
-		MadeBy:          madeBy,
-		MadeIn:          madeIn,
-		SerialNumber:    serialNumber,
-		SecurityChip:    securityChip,
-		NetworkChip:     networkChip,
-		CMOSChip:        cmosChip,
-		VideoCodecChip:  videoCodecChip,
-		ProductionDate:  productionDate,
-	}
-	assetJSON, err := json.Marshal(asset)
+	assetBytes, err := json.Marshal(asset)
 	if err != nil {
 		return err
 	}
 
-	// Use CreateCompositeKeyAndPutState to put the asset into the state
-	attributes := []string{madeBy, id}
-	return CreateCompositeKeyAndPutState(ctx, "asset", attributes, id, assetJSON)
+	err = ctx.GetStub().PutState(assetID, assetBytes)
+	if err != nil {
+		return err
+	}
+	ivsIndexKey, err := ctx.GetStub().CreateCompositeKey(index, []string{asset.Organization, asset.ID})
+	if err != nil {
+		return err
+	}
+	value := []byte{0x00}
+	return ctx.GetStub().PutState(ivsIndexKey, value)	
 }
 
-// TransferPart updates the Organization field of Part with given partID in world state, and returns the old Organization.
-func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface, partID string, assetTransferDate string, newOrganization string) (string, error) {
-	partBytes, err := RetrieveData(ctx, partID)
+// ReadAsset retrieves an asset from the ledger
+func (t *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, assetID string) (*Asset, error) {
+	assetBytes, err := ctx.GetStub().GetState(assetID)
 	if err != nil {
-		return "", err
+		return nil, fmt.Errorf("failed to get asset %s: %v", assetID, err)
+	}
+	if assetBytes == nil {
+		return nil, fmt.Errorf("asset %s does not exist", assetID)
 	}
 
-	var part Part
-	err = json.Unmarshal(partBytes, &part)
+	var asset Asset
+	err = json.Unmarshal(assetBytes, &asset)
 	if err != nil {
-		return "", fmt.Errorf("failed to unmarshal part %s: %v", string(partBytes), err)
+		return nil, err
 	}
 
-	oldOrganization := part.Organization
-	part.Organization = newOrganization
-	part.TransferDate = assetTransferDate
+	return &asset, nil
+}
 
-	partBytes, err = json.Marshal(part)
+// UpdateAsset updates an existing asset in the world state with provided parameters.
+func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, assetID string, manufacturer string, manufacturelocation string, partname string, partnumber string, serialnumber string, organization string, manufacturedate string) error {
+	exists, err := t.AssetExists(ctx, assetID)
 	if err != nil {
-		return "", err
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("the asset %s does not exist", assetID)
 	}
 
-	err = ctx.GetStub().PutState(partID, partBytes)
+	// overwriting original asset with new asset
+	asset := &Asset{
+		DocType:        		"asset",
+		ID:             		assetID,
+		Manufacturer:          	manufacturer,
+		ManufactureLocation:          manufacturelocation,
+		PartName:          		partname,
+		PartNumber: 		partnumber,
+		SerialNumber:		serialnumber,
+		Organization:		organization,
+		ManufactureDate:		manufacturedate,
+	}
+	assetBytes, err := json.Marshal(asset)
 	if err != nil {
-		return "", fmt.Errorf("failed to update part %s: %v", partID, err)
+		return err
+	}
+
+	err = ctx.GetStub().PutState(assetID, assetBytes)
+	if err != nil {
+		return err
+	}
+	ivsIndexKey, err := ctx.GetStub().CreateCompositeKey(index, []string{asset.Organization, asset.ID})
+	if err != nil {
+		return err
+	}
+	value := []byte{0x00}
+	return ctx.GetStub().PutState(ivsIndexKey, value)	
+}
+
+// DeleteAsset removes an asset key-value pair from the ledger
+func (t *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface, assetID string) error {
+	asset, err := t.ReadAsset(ctx, assetID)
+	if err != nil {
+		return err
+	}
+	err = ctx.GetStub().DelState(assetID)
+	if err != nil {
+		return fmt.Errorf("failed to delete asset %s: %v", assetID, err)
+	}
+
+	ivsIndexKey, err := ctx.GetStub().CreateCompositeKey(index, []string{asset.Organization, asset.ID})
+	if err != nil {
+		return err
+	}
+
+	// Delete index entry
+	return ctx.GetStub().DelState(ivsIndexKey)
+}
+
+// TransferAsset updates the Organization and TransferDate field of asset with given id in world state, and returns the old Organization.
+func (t *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterface, assetID, assetTransferDate string, newOrganization string) (string, error) {
+	asset, err := t.ReadAsset(ctx, assetID)
+	if err != nil {
+		return "", fmt.Errorf("failed to read asset: %v", err)
+	}
+
+	oldOrganization := asset.Organization
+	asset.Organization = newOrganization
+	asset.TransferDate = assetTransferDate
+	
+	assetBytes, err := json.Marshal(asset)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal asset: %v", err)
+	}
+
+	err = ctx.GetStub().PutState(assetID, assetBytes)
+	if err != nil {
+		return "", fmt.Errorf("failed to update asset: %v", err)
 	}
 
 	return oldOrganization, nil
 }
 
-// Read retrieves a asset/part from the ledger.
-func read(ctx contractapi.TransactionContextInterface, id string, objectType reflect.Type) (interface{}, error) {
-	dataBytes, err := RetrieveData(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	data := reflect.New(objectType).Interface()
-	err = json.Unmarshal(dataBytes, data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal data %s: %v", string(dataBytes), err)
-	}
-
-	return data, nil
-}
-
-// ReadPart retrieves a Part from the ledger.
-func (t *SmartContract) ReadPart(ctx contractapi.TransactionContextInterface, partID string) (*Part, error) {
-	data, err := read(ctx, partID, reflect.TypeOf(Part{}))
-	if err != nil {
-		return nil, err
-	}
-
-	return data.(*Part), nil
-}
-
-// ReadAsset retrieves an asset from the ledger.
-func (t *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, assetID string) (*Asset, error) {
-	data, err := read(ctx, assetID, reflect.TypeOf(Asset{}))
-	if err != nil {
-		return nil, err
-	}
-
-	return data.(*Asset), nil
-}
-
-// Delete retrieves a asset/part from the ledger.
-func delete(ctx contractapi.TransactionContextInterface, id string, objectType reflect.Type) error {
-	data, err := read(ctx, id, objectType)
-	if err != nil {
-		return err
-	}
-
-	var attributes []string
-	switch v := data.(type) {
-	case *Part:
-		attributes = []string{v.Organization, v.PID}
-	case *Asset:
-		attributes = []string{v.MadeBy, v.ID}
-	default:
-		return fmt.Errorf("unknown data type: %v", objectType)
-	}
-
-	return DeleteStateAndCompositeKey(ctx, index, attributes, id)
-}
-
-// DeletePart removes a part key-value pair from the ledger.
-func (t *SmartContract) DeletePart(ctx contractapi.TransactionContextInterface, partID string) error {
-	return delete(ctx, partID, reflect.TypeOf(Part{}))
-}
-
-// DeleteAsset removes an asset key-value pair from the ledger
-func (t *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface, assetID string) error {
-	return delete(ctx, assetID, reflect.TypeOf(Asset{}))
-}
-
-func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface, dataType reflect.Type) (interface{}, error) {
-	var data []interface{}
+// constructQueryResponseFromIterator constructs a slice of assets from the resultsIterator
+func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*Asset, error) {
+	var assets []*Asset
 	for resultsIterator.HasNext() {
 		queryResult, err := resultsIterator.Next()
 		if err != nil {
 			return nil, err
 		}
-		item := reflect.New(dataType).Interface()
-		err = json.Unmarshal(queryResult.Value, item)
+		var asset Asset
+		err = json.Unmarshal(queryResult.Value, &asset)
 		if err != nil {
 			return nil, err
 		}
-		data = append(data, item)
+		assets = append(assets, &asset)
 	}
 
-	// return an empty slice instead of nil if there are no data
-	if len(data) == 0 {
-		return reflect.MakeSlice(reflect.SliceOf(dataType), 0, 0).Interface(), nil
-	}
-
-	return data, nil
+	return assets, nil
 }
 
-func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string, dataType reflect.Type) (interface{}, error) {
-	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	return constructQueryResponseFromIterator(resultsIterator, dataType)
-}
-
-// GetAll asset/part from the ledger.
-func getAll(ctx contractapi.TransactionContextInterface, objectType reflect.Type) (interface{}, error) {
+// GetAllAssets returns all assets found in world state
+func (t *SmartContract) GetAllAssets(ctx contractapi.TransactionContextInterface) ([]*Asset, error) {
+	// range query with empty string for startKey and endKey does an
+	// open-ended query of all assets in the chaincode namespace.
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
 		return nil, err
 	}
 	defer resultsIterator.Close()
 
-	data, err := constructQueryResponseFromIterator(resultsIterator, objectType)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	return constructQueryResponseFromIterator(resultsIterator)
 }
 
-// GetAllParts returns all parts found in world state.
-func (t *SmartContract) GetAllParts(ctx contractapi.TransactionContextInterface) ([]*Part, error) {
-	data, err := getAll(ctx, reflect.TypeOf(Part{}))
-	if err != nil {
-		return nil, err
-	}
-
-	return data.([]*Part), nil
-}
-
-// GetAllAssets returns all assets found in world state.
-func (t *SmartContract) GetAllAssets(ctx contractapi.TransactionContextInterface) ([]*Asset, error) {
-	data, err := getAll(ctx, reflect.TypeOf(Asset{}))
-	if err != nil {
-		return nil, err
-	}
-
-	return data.([]*Asset), nil
-}
-
-// Get asset/part By Range from the ledger.
-func getByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string, objectType reflect.Type) (interface{}, error) {
+func (t *SmartContract) GetAssetsByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*Asset, error) {
 	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
 	if err != nil {
 		return nil, err
 	}
 	defer resultsIterator.Close()
 
-	items, err := constructQueryResponseFromIterator(resultsIterator, objectType)
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
+	return constructQueryResponseFromIterator(resultsIterator)
 }
 
-// GetPartsByRange returns all parts in the given range.
-func (t *SmartContract) GetPartsByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*Part, error) {
-	parts, err := getByRange(ctx, startKey, endKey, reflect.TypeOf(Part{}))
-	if err != nil {
-		return nil, err
-	}
-
-	return parts.([]*Part), nil
+func (t *SmartContract) QueryAssetsByOrganization(ctx contractapi.TransactionContextInterface, organization string) ([]*Asset, error) {
+	queryString := fmt.Sprintf(`{"selector":{"docType":"asset","organization":"%s"}}`, organization)
+	return getQueryResultForQueryString(ctx, queryString)
 }
 
-// GetAssetsByRange returns all assets in the given range.
-func (t *SmartContract) GetAssetsByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*Asset, error) {
-	assets, err := getByRange(ctx, startKey, endKey, reflect.TypeOf(Asset{}))
-	if err != nil {
-		return nil, err
-	}
-
-	return assets.([]*Asset), nil
-}
-
-// Query asset/part By Owner from the ledger.
-func queryByOwner(ctx contractapi.TransactionContextInterface, ownerKey, ownerValue string, objectType reflect.Type) (interface{}, error) {
-	queryString := fmt.Sprintf(`{"selector":{"docType":"%s","%s":"%s"}}`, objectType.Name(), ownerKey, ownerValue)
-	items, err := getQueryResultForQueryString(ctx, queryString, objectType)
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
-}
-
-// QueryPartsByOwner returns all parts owned by the given organization.
-func (t *SmartContract) QueryPartsByOwner(ctx contractapi.TransactionContextInterface, organization string) ([]*Part, error) {
-	parts, err := queryByOwner(ctx, "organization", organization, reflect.TypeOf(Part{}))
-	if err != nil {
-		return nil, err
-	}
-
-	return parts.([]*Part), nil
-}
-
-// QueryAssetsByOwner returns all assets made by the given manufacturer.
-func (t *SmartContract) QueryAssetsByOwner(ctx contractapi.TransactionContextInterface, madeby string) ([]*Asset, error) {
-	assets, err := queryByOwner(ctx, "madeby", madeby, reflect.TypeOf(Asset{}))
-	if err != nil {
-		return nil, err
-	}
-
-	return assets.([]*Asset), nil
-}
-
-// Query asset/part All from the ledger.
-func queryItems(ctx contractapi.TransactionContextInterface, queryString string, objectType reflect.Type) (interface{}, error) {
-	items, err := getQueryResultForQueryString(ctx, queryString, objectType)
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
-}
-
-// QueryParts returns all parts that satisfy the provided query string.
-func (t *SmartContract) QueryParts(ctx contractapi.TransactionContextInterface, queryString string) ([]*Part, error) {
-	parts, err := queryItems(ctx, queryString, reflect.TypeOf(Part{}))
-	if err != nil {
-		return nil, err
-	}
-
-	return parts.([]*Part), nil
-}
-
-// QueryAssets returns all assets that satisfy the provided query string.
 func (t *SmartContract) QueryAssets(ctx contractapi.TransactionContextInterface, queryString string) ([]*Asset, error) {
-	assets, err := queryItems(ctx, queryString, reflect.TypeOf(Asset{}))
+	return getQueryResultForQueryString(ctx, queryString)
+}
+
+// getQueryResultForQueryString executes the passed in query string.
+// The result set is built and returned as a byte array containing the JSON results.
+func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*Asset, error) {
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
+}
+
+func (t *SmartContract) GetAssetsByRangeWithPagination(ctx contractapi.TransactionContextInterface, startKey string, endKey string, pageSize int, bookmark string) (*PaginatedQueryResult, error) {
+
+	resultsIterator, responseMetadata, err := ctx.GetStub().GetStateByRangeWithPagination(startKey, endKey, int32(pageSize), bookmark)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	assets, err := constructQueryResponseFromIterator(resultsIterator)
 	if err != nil {
 		return nil, err
 	}
 
-	return assets.([]*Asset), nil
+	return &PaginatedQueryResult{
+		Records:             assets,
+		FetchedRecordsCount: responseMetadata.FetchedRecordsCount,
+		Bookmark:            responseMetadata.Bookmark,
+	}, nil
 }
 
-func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string, objectType reflect.Type) (*PaginatedQueryResult, error) {
+func (t *SmartContract) QueryAssetsWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int, bookmark string) (*PaginatedQueryResult, error) {
+
+	return getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark)
+}
+
+func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int32, bookmark string) (*PaginatedQueryResult, error) {
+
 	resultsIterator, responseMetadata, err := ctx.GetStub().GetQueryResultWithPagination(queryString, pageSize, bookmark)
 	if err != nil {
 		return nil, err
 	}
 	defer resultsIterator.Close()
 
-	data, err := constructQueryResponseFromIterator(resultsIterator, objectType)
+	assets, err := constructQueryResponseFromIterator(resultsIterator)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert the data to a slice of *Asset
-	items, ok := data.([]*Asset)
-	if !ok {
-		return nil, fmt.Errorf("failed to convert data to []*Asset")
-	}
-
 	return &PaginatedQueryResult{
-		Records:             items,
+		Records:             assets,
 		FetchedRecordsCount: responseMetadata.FetchedRecordsCount,
 		Bookmark:            responseMetadata.Bookmark,
 	}, nil
 }
 
-func queryItemsWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int, bookmark string, objectType reflect.Type) (*PaginatedQueryResult, error) {
-	paginatedQueryResult, err := getQueryResultForQueryStringWithPagination(ctx, queryString, int32(pageSize), bookmark, objectType)
-	if err != nil {
-		return nil, err
-	}
-
-	return paginatedQueryResult, nil
-}
-
-func (t *SmartContract) GetAssetsByRangeWithPagination(ctx contractapi.TransactionContextInterface, startKey string, endKey string, pageSize int, bookmark string) (*PaginatedQueryResult, error) {
-	queryString := fmt.Sprintf(`{"selector":{"SerialNumber":{"$gte":"%s","$lte":"%s"}}}`, startKey, endKey)
-	return queryItemsWithPagination(ctx, queryString, pageSize, bookmark, reflect.TypeOf(Asset{}))
-}
-
-func (t *SmartContract) QueryAssetsWithPagination(ctx contractapi.TransactionContextInterface, queryString string, pageSize int, bookmark string) (*PaginatedQueryResult, error) {
-	return queryItemsWithPagination(ctx, queryString, pageSize, bookmark, reflect.TypeOf(Asset{}))
-}
-
 // GetAssetHistory returns the chain of custody for an asset since issuance.
-func (t *SmartContract) GetAssetHistory(ctx contractapi.TransactionContextInterface, assetSerialNumber string) ([]HistoryQueryResult, error) {
-	log.Printf("GetAssetHistory: SerialNumber %v", assetSerialNumber)
+func (t *SmartContract) GetAssetHistory(ctx contractapi.TransactionContextInterface, assetID string) ([]HistoryQueryResult, error) {
+	log.Printf("GetAssetHistory: ID %v", assetID)
 
-	resultsIterator, err := ctx.GetStub().GetHistoryForKey(assetSerialNumber)
+	resultsIterator, err := ctx.GetStub().GetHistoryForKey(assetID)
 	if err != nil {
 		return nil, err
 	}
@@ -572,7 +386,7 @@ func (t *SmartContract) GetAssetHistory(ctx contractapi.TransactionContextInterf
 			}
 		} else {
 			asset = Asset{
-				SerialNumber: assetSerialNumber,
+				ID: assetID,
 			}
 		}
 
@@ -592,3 +406,41 @@ func (t *SmartContract) GetAssetHistory(ctx contractapi.TransactionContextInterf
 
 	return records, nil
 }
+
+// AssetExists returns true when asset with given ID exists in world state
+func (t *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface, assetID string) (bool, error) {
+	assetBytes, err := ctx.GetStub().GetState(assetID)
+	if err != nil {
+		return false, fmt.Errorf("failed to read asset %s from world state. %v", assetID, err)
+	}
+
+	return assetBytes != nil, nil
+}
+
+// GetAllUsers returns all users found in world state
+//func (t *SmartContract) GetAllUsers(ctx contractapi.TransactionContextInterface) ([]*User, error) {
+//	// range query with empty string for startKey and endKey does an
+//	// open-ended query of all assets in the chaincode namespace.
+//	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
+//	if err != nil {
+//		return nil, err
+//	}
+//	defer resultsIterator.Close()
+//
+//	var users []*User
+//	for resultsIterator.HasNext() {
+//		queryResponse, err := resultsIterator.Next()
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		var user User
+//		err = json.Unmarshal(queryResponse.Value, &user)
+//		if err != nil {
+//			return nil, err
+//		}
+//		users = append(users, &user)
+//	}
+//
+//	return users, nil
+//}
