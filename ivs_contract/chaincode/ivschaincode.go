@@ -107,25 +107,8 @@ func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	return nil
 }
 
-// CheckRole checks if the user has the required role.
-func CheckRole(ctx contractapi.TransactionContextInterface, requiredRole string) error {
-	attr, ok, err := ctx.GetClientIdentity().GetAttributeValue("role")
-	if err != nil {
-		return fmt.Errorf("failed to get the 'role' attribute: %v", err)
-	}
-	if !ok || attr != requiredRole {
-		return fmt.Errorf("unauthorized user role")
-	}
-	return nil
-}
-
-// CheckRoleAndRetrieveData checks the role and retrieves the data.
-func CheckRoleAndRetrieveData(ctx contractapi.TransactionContextInterface, role string, ID string) ([]byte, error) {
-	err := CheckRole(ctx, role)
-	if err != nil {
-		return nil, err
-	}
-
+// RetrieveData checks the role and retrieves the data.
+func RetrieveData(ctx contractapi.TransactionContextInterface, ID string) ([]byte, error) {
 	dataBytes, err := ctx.GetStub().GetState(ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %v", err)
@@ -166,10 +149,6 @@ func DeleteStateAndCompositeKey(ctx contractapi.TransactionContextInterface, obj
 
 // CheckExists returns true when part with given ID exists in world state.
 func (t *SmartContract) checkExistence(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-	err := CheckRole(ctx, RoleAdmin)
-	if err != nil {
-		return false, err
-	}
 	bytes, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state. %v", err)
@@ -190,11 +169,6 @@ func (t *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface,
 
 // CreateItem initializes a new item in the ledger.
 func (t *SmartContract) createItem(ctx contractapi.TransactionContextInterface, id string, item interface{}) error {
-	err := CheckRole(ctx, RoleAdmin)
-	if err != nil {
-		return err
-	}
-
 	exists, err := t.checkExistence(ctx, id)
 	if err != nil {
 		return err
@@ -270,7 +244,7 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 
 // TransferPart updates the Organization field of Part with given partID in world state, and returns the old Organization.
 func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface, partID string, assetTransferDate string, newOrganization string) (string, error) {
-	partBytes, err := CheckRoleAndRetrieveData(ctx, RoleAdmin, partID)
+	partBytes, err := RetrieveData(ctx, partID)
 	if err != nil {
 		return "", err
 	}
@@ -300,7 +274,7 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 
 // Read retrieves a asset/part from the ledger.
 func read(ctx contractapi.TransactionContextInterface, id string, objectType reflect.Type) (interface{}, error) {
-	dataBytes, err := CheckRoleAndRetrieveData(ctx, RoleAdmin, id)
+	dataBytes, err := RetrieveData(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -399,10 +373,6 @@ func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, q
 
 // GetAll asset/part from the ledger.
 func getAll(ctx contractapi.TransactionContextInterface, objectType reflect.Type) (interface{}, error) {
-	err := CheckRole(ctx, RoleAdmin)
-	if err != nil {
-		return nil, err
-	}
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
 		return nil, err
@@ -439,10 +409,6 @@ func (t *SmartContract) GetAllAssets(ctx contractapi.TransactionContextInterface
 
 // Get asset/part By Range from the ledger.
 func getByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string, objectType reflect.Type) (interface{}, error) {
-	err := CheckRole(ctx, RoleAdmin)
-	if err != nil {
-		return nil, err
-	}
 	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
 	if err != nil {
 		return nil, err
@@ -479,10 +445,6 @@ func (t *SmartContract) GetAssetsByRange(ctx contractapi.TransactionContextInter
 
 // Query asset/part By Owner from the ledger.
 func queryByOwner(ctx contractapi.TransactionContextInterface, ownerKey, ownerValue string, objectType reflect.Type) (interface{}, error) {
-	err := CheckRole(ctx, RoleAdmin)
-	if err != nil {
-		return nil, err
-	}
 	queryString := fmt.Sprintf(`{"selector":{"docType":"%s","%s":"%s"}}`, objectType.Name(), ownerKey, ownerValue)
 	items, err := getQueryResultForQueryString(ctx, queryString, objectType)
 	if err != nil {
@@ -514,10 +476,6 @@ func (t *SmartContract) QueryAssetsByOwner(ctx contractapi.TransactionContextInt
 
 // Query asset/part All from the ledger.
 func queryItems(ctx contractapi.TransactionContextInterface, queryString string, objectType reflect.Type) (interface{}, error) {
-	err := CheckRole(ctx, RoleAdmin)
-	if err != nil {
-		return nil, err
-	}
 	items, err := getQueryResultForQueryString(ctx, queryString, objectType)
 	if err != nil {
 		return nil, err
