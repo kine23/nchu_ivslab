@@ -87,68 +87,68 @@ func main() {
 	exampleErrorHandling(contract)
 	
 	createPart(contract, PartArgs{
-    	PID: "IVSLAB-S23FA0002",
-    	Manufacturer: "Security.Co",
-    	ManufactureLocation: "Taiwan",
-    	PartName: "SecurityChip-v1",
-    	PartNumber: "SPN3R1C00AA2",
-    	Organization: "Security-Org",
-    	ManufactureDate: "2023-05-17",
-	})
+    		PID: "IVSLAB-S23FA0002",
+    		Manufacturer: "Security.Co",
+    		ManufactureLocation: "Taiwan",
+    		PartName: "SecurityChip-v1",
+    		PartNumber: "SPN3R1C00AA2",
+    		Organization: "Security-Org",
+    		ManufactureDate: "2023-05-17",
+		})
 
 	createPart(contract, PartArgs{
-    	PID: "IVSLAB-N23FA0002",
-    	Manufacturer: "Network.Co",
-    	ManufactureLocation: "Taiwan",
-    	PartName: "NetworkChip-v1",
-    	PartNumber: "NPN3R1C00AA2",
-    	Organization: "Network-Org",
-    	ManufactureDate: "2023-05-17",
-	})
+    		PID: "IVSLAB-N23FA0002",
+    		Manufacturer: "Network.Co",
+    		ManufactureLocation: "Taiwan",
+    		PartName: "NetworkChip-v1",
+    		PartNumber: "NPN3R1C00AA2",
+    		Organization: "Network-Org",
+    		ManufactureDate: "2023-05-17",
+		})
 
 	createPart(contract, PartArgs{
-    	PID: "IVSLAB-C23FA0002",
-    	Manufacturer: "CMOS.Co",
-    	ManufactureLocation: "USA",
-    	PartName: "CMOSChip-v1",
-    	PartNumber: "CPN3R1C00AA2",
-    	Organization: "CMOS-Org",
-    	ManufactureDate: "2023-05-17",
-	})
+    		PID: "IVSLAB-C23FA0002",
+    		Manufacturer: "CMOS.Co",
+    		ManufactureLocation: "USA",
+    		PartName: "CMOSChip-v1",
+    		PartNumber: "CPN3R1C00AA2",
+    		Organization: "CMOS-Org",
+    		ManufactureDate: "2023-05-17",
+		})
 
 	createPart(contract, PartArgs{
-    	PID: "IVSLAB-V23FA0002",
-    	Manufacturer: "VideoCodec.Co",
-   	ManufactureLocation: "USA",
-    	PartName: "VideoCodecChip-v1",
-    	PartNumber: "VPN3R1C00AA2",
-    	Organization: "VideoCodec-Org",
-    	ManufactureDate: "2023-05-17",
-	})
+    		PID: "IVSLAB-V23FA0002",
+    		Manufacturer: "VideoCodec.Co",
+   		ManufactureLocation: "USA",
+    		PartName: "VideoCodecChip-v1",
+    		PartNumber: "VPN3R1C00AA2",
+    		Organization: "VideoCodec-Org",
+    		ManufactureDate: "2023-05-17",
+		})
 	
 	transferPartAsync(contract, TransferPartArgs{
-    	PID: "IVSLAB-S23FA0002",
-    	Organization: "Brand-Org",
-    	ManufactureDate: "2023-05-17",
-	})
+    		PID: "IVSLAB-S23FA0002",
+    		Organization: "Brand-Org",
+    		ManufactureDate: "2023-05-17",
+		})
 
 	transferPartAsync(contract, TransferPartArgs{
-    	PID: "IVSLAB-N23FA0002",
-    	Organization: "Brand-Org",
-    	ManufactureDate: "2023-05-17",
-	})
+    		PID: "IVSLAB-N23FA0002",
+    		Organization: "Brand-Org",
+    		ManufactureDate: "2023-05-17",
+		})
 
 	transferPartAsync(contract, TransferPartArgs{
-    	PID: "IVSLAB-C23FA0002",
-    	Organization: "Brand-Org",
-    	ManufactureDate: "2023-05-17",
-	})
+    		PID: "IVSLAB-C23FA0002",
+    		Organization: "Brand-Org",
+    		ManufactureDate: "2023-05-17",
+		})
 
 	transferPartAsync(contract, TransferPartArgs{
-    	PID: "IVSLAB-V23FA0002",
-    	Organization: "Brand-Org",
-    	ManufactureDate: "2023-05-17",
-	})	
+    		PID: "IVSLAB-V23FA0002",
+    		Organization: "Brand-Org",
+    		ManufactureDate: "2023-05-17",
+		})	
 }
 
 // newGrpcConnection creates a gRPC connection to the Gateway server.
@@ -314,30 +314,6 @@ func readPartByID(contract *client.Contract) {
 	fmt.Printf("\n--> Evaluate Transaction: ReadPart, function returns asset attributes\n")
 
 	evaluateResult, err := contract.EvaluateTransaction("ReadPart", "IVSLAB-S23FA0002")
-	if err != nil {
-		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
-	}
-	result := formatJSON(evaluateResult)
-
-	fmt.Printf("*** Result:%s\n", result)
-}
-
-func readAssetByID(contract *client.Contract) {
-	fmt.Printf("\n--> Evaluate Transaction: ReadAsser, function returns asset attributes\n")
-
-	evaluateResult, err := contract.EvaluateTransaction("ReadAsset", "IVSLAB-PVC23FG0001")
-	if err != nil {
-		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
-	}
-	result := formatJSON(evaluateResult)
-
-	fmt.Printf("*** Result:%s\n", result)
-}
-
-func readAssetByID(contract *client.Contract) {
-	fmt.Printf("\n--> Evaluate Transaction: ReadAsser, function returns asset attributes\n")
-
-	evaluateResult, err := contract.EvaluateTransaction("ReadAsset", "IVSLAB-PVC23FG0002")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
