@@ -74,10 +74,8 @@ func main() {
 	getAllAssets(contract)
 	getAllParts(contract)
 	createAsset(contract)
-	createPart(contract)
 	readAssetByID(contract)
 	readPartByID(contract)
-	transferPartAsync(contract)
 	getAssetsByRange(contract)
 	getPartsByRange(contract)
 	queryPartsByOwner(contract)
@@ -314,6 +312,18 @@ func readPartByID(contract *client.Contract) {
 	fmt.Printf("\n--> Evaluate Transaction: ReadPart, function returns asset attributes\n")
 
 	evaluateResult, err := contract.EvaluateTransaction("ReadPart", "IVSLAB-S23FA0002")
+	if err != nil {
+		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+	}
+	result := formatJSON(evaluateResult)
+
+	fmt.Printf("*** Result:%s\n", result)
+}
+
+func readAssetByID(contract *client.Contract) {
+	fmt.Printf("\n--> Evaluate Transaction: ReadAsser, function returns asset attributes\n")
+
+	evaluateResult, err := contract.EvaluateTransaction("ReadAsset", "IVSLAB-PVC23FG0001")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
