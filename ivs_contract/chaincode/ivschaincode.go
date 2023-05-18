@@ -269,6 +269,11 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
 		assets = append(assets, &asset)
 	}
 
+	// return an empty slice instead of nil if there are no assets
+	if len(assets) == 0 {
+		return []*Asset{}, nil
+	}
+
 	return assets, nil
 }
 
