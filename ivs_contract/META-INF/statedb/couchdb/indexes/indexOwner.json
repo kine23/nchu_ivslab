@@ -1,1 +1,1 @@
-{"index":{"fields":["docType","MadeBy"]},"ddoc":"indexMadeByDoc", "name":"indexMadeBy","type":"json"}
+{"index":{"fields":["docType","asset","organization"]},"ddoc":"indexOrganizationDoc", "name":"indexOrganization","type":"json"}
