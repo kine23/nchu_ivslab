@@ -191,94 +191,74 @@ func getAllAssets(contract *client.Contract) {
 
 	fmt.Printf("*** Result:%s\n", result)
 }
-
-func createPart1(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, ManufactureDate, Organization \n")
-
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-S23FA0002", "Security.Co", "Taiwan", "SecurityChip-v1", "SPN3R1C00AA2", "Security-Org", "2023-05-17")
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
-	}
-
-	fmt.Printf("*** Transaction committed successfully\n")
-}
-func createPart2(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, ManufactureDate, Organization \n")
-
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-N23FA0002", "Network.Co", "Taiwan", "NetworkChip-v1", "NPN3R1C00AA2", "Network-Org", "2023-05-17")
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
-	}
-
-	fmt.Printf("*** Transaction committed successfully\n")
-}
-func createPart3(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with ID, Manufacturer, ManufactureLocation, PartName, PartNumber, ManufactureDate, Organization \n")
-
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-C23FA0002", "CMOS.Co", "USA", "CMOSChip-v1", "CPN3R1C00AA2", "CMOS-Org", "2023-05-17")
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
-	}
-
-	fmt.Printf("*** Transaction committed successfully\n")
-}
-func createPart4(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with ID, Manufacturer, ManufactureLocation, PartName, PartNumber, ManufactureDate, Organization \n")
-
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-V23FA0002", "VideoCodec.Co", "USA", "VideoCodecChip-v1", "VPN3R1C00AA2", "VideoCodec-Org", "2023-05-17")
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
-	}
-
-	fmt.Printf("*** Transaction committed successfully\n")
+type PartArgs struct {
+    PID                  string
+    Manufacturer         string
+    ManufactureLocation  string
+    PartName             string
+    PartNumber           string
+    Organization         string
+    ManufactureDate      string
 }
 
-// Submit a transaction synchronously, blocking until it has been committed to the ledger.
-func createPart5(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, ManufactureDate, Organization \n")
-
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-S23FA0003", "Security.Co", "Taiwan", "SecurityChip-v1", "SPN3R1C00AA3", "Security-Org", "2023-05-17")
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
-	}
-
-	fmt.Printf("*** Transaction committed successfully\n")
-}
-func createPart6(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, ManufactureDate, Organization \n")
-
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-N23FA0003", "Network.Co", "Taiwan", "NetworkChip-v1", "NPN3R1C00AA3", "Network-Org", "2023-05-17")
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
-	}
-
-	fmt.Printf("*** Transaction committed successfully\n")
-}
-func createPart7(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with ID, Manufacturer, ManufactureLocation, PartName, PartNumber, ManufactureDate, Organization \n")
-
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-C23FA0003", "CMOS.Co", "USA", "CMOSChip-v1", "CPN3R1C00AA3", "CMOS-Org", "2023-05-17")
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
-	}
-
-	fmt.Printf("*** Transaction committed successfully\n")
-}
-func createPart8(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with ID, Manufacturer, ManufactureLocation, PartName, PartNumber, ManufactureDate, Organization \n")
-
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-V23FA0003", "VideoCodec.Co", "USA", "VideoCodecChip-v1", "VPN3R1C00AA3", "VideoCodec-Org", "2023-05-17")
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
-	}
-
-	fmt.Printf("*** Transaction committed successfully\n")
+func createPart(contract *client.Contract, args PartArgs) {
+    fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, ManufactureDate, Organization \n")
+    _, err := contract.SubmitTransaction("CreatePart", args.PID, args.Manufacturer, args.ManufactureLocation, args.PartName, args.PartNumber, args.Organization, args.ManufactureDate)
+    if err != nil {
+        panic(fmt.Errorf("failed to submit transaction: %w", err))
+    }
+    fmt.Printf("*** Transaction committed successfully\n")
 }
 
+createPart(contract, PartArgs{
+    PID: "IVSLAB-S23FA0002",
+    Manufacturer: "Security.Co",
+    ManufactureLocation: "Taiwan",
+    PartName: "SecurityChip-v1",
+    PartNumber: "SPN3R1C00AA2",
+    Organization: "Security-Org",
+    ManufactureDate: "2023-05-17",
+})
 
-func transferPartAsync1(contract *client.Contract) {
+createPart(contract, PartArgs{
+    PID: "IVSLAB-N23FA0002",
+    Manufacturer: "Network.Co",
+    ManufactureLocation: "Taiwan",
+    PartName: "NetworkChip-v1",
+    PartNumber: "NPN3R1C00AA2",
+    Organization: "Network-Org",
+    ManufactureDate: "2023-05-17",
+})
+
+createPart(contract, PartArgs{
+    PID: "IVSLAB-C23FA0002",
+    Manufacturer: "CMOS.Co",
+    ManufactureLocation: "USA",
+    PartName: "CMOSChip-v1",
+    PartNumber: "CPN3R1C00AA2",
+    Organization: "CMOS-Org",
+    ManufactureDate: "2023-05-17",
+})
+
+createPart(contract, PartArgs{
+    PID: "IVSLAB-V23FA0002",
+    Manufacturer: "VideoCodec.Co",
+    ManufactureLocation: "USA",
+    PartName: "VideoCodecChip-v1",
+    PartNumber: "VPN3R1C00AA2",
+    Organization: "VideoCodec-Org",
+    ManufactureDate: "2023-05-17",
+})
+
+type TransferPartArgs struct {
+    PID                  string
+    Organization         string
+    ManufactureDate      string
+}
+
+func transferPartAsync(contract *client.Contract, args TransferPartArgs) {
 	fmt.Printf("\n--> Async Submit Transaction: TransferPart, updates existing part Organization and TransferDate")
-	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-S23FA0002", "2023-05-18", "Brand.Co"))
+	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments(args.PID, args.ManufactureDate, args.Organization))
 	if err != nil {
 		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
 	}
@@ -292,54 +272,30 @@ func transferPartAsync1(contract *client.Contract) {
 	}
 	fmt.Printf("*** Transaction committed successfully\n")
 }
-func transferPartAsync2(contract *client.Contract) {
-	fmt.Printf("\n--> Async Submit Transaction: TransferPart, updates existing part Organization and TransferDate")
-	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-N23FA0002", "2023-05-18", "Brand.Co"))
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
-	}
 
-	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to %d. \n", string(submitResult))
-	fmt.Println("*** Waiting for transaction commit.")
-	if commitStatus, err := commit.Status(); err != nil {
-		panic(fmt.Errorf("failed to get commit status: %w", err))
-	} else if !commitStatus.Successful {
-		panic(fmt.Errorf("transaction %s failed to commit with status: %d", commitStatus.TransactionID, int32(commitStatus.Code)))
-	}
-	fmt.Printf("*** Transaction committed successfully\n")
-}
-func transferPartAsync3(contract *client.Contract) {
-	fmt.Printf("\n--> Async Submit Transaction: TransferPart, updates existing part Organization and TransferDate")
-	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-C23FA0002", "2023-05-18", "Brand.Co"))
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
-	}
+transferPartAsync(contract, TransferPartArgs{
+    PID: "IVSLAB-S23FA0002",
+    Organization: "Brand-Org",
+    ManufactureDate: "2023-05-17",
+})
 
-	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to %d. \n", string(submitResult))
-	fmt.Println("*** Waiting for transaction commit.")
-	if commitStatus, err := commit.Status(); err != nil {
-		panic(fmt.Errorf("failed to get commit status: %w", err))
-	} else if !commitStatus.Successful {
-		panic(fmt.Errorf("transaction %s failed to commit with status: %d", commitStatus.TransactionID, int32(commitStatus.Code)))
-	}
-	fmt.Printf("*** Transaction committed successfully\n")
-}
-func transferPartAsync4(contract *client.Contract) {
-	fmt.Printf("\n--> Async Submit Transaction: TransferPart, updates existing part Organization and TransferDate")
-	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-V23FA0002", "2023-05-18", "Brand.Co"))
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
-	}
+transferPartAsync(contract, TransferPartArgs{
+    PID: "IVSLAB-N23FA0002",
+    Organization: "Brand-Org",
+    ManufactureDate: "2023-05-17",
+})
 
-	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to %d. \n", string(submitResult))
-	fmt.Println("*** Waiting for transaction commit.")
-	if commitStatus, err := commit.Status(); err != nil {
-		panic(fmt.Errorf("failed to get commit status: %w", err))
-	} else if !commitStatus.Successful {
-		panic(fmt.Errorf("transaction %s failed to commit with status: %d", commitStatus.TransactionID, int32(commitStatus.Code)))
-	}
-	fmt.Printf("*** Transaction committed successfully\n")
-}
+transferPartAsync(contract, TransferPartArgs{
+    PID: "IVSLAB-C23FA0002",
+    Organization: "Brand-Org",
+    ManufactureDate: "2023-05-17",
+})
+
+transferPartAsync(contract, TransferPartArgs{
+    PID: "IVSLAB-V23FA0002",
+    Organization: "Brand-Org",
+    ManufactureDate: "2023-05-17",
+})
 
 // Submit a transaction synchronously, blocking until it has been committed to the ledger.
 func createAsset(contract *client.Contract) {
