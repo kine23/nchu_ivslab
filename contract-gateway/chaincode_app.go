@@ -77,29 +77,6 @@ func main() {
 	network := gw.GetNetwork(channelName)
 	contract := network.GetContract(chaincodeName)
 	
-	transferPartAsync(contract, TransferPartArgs{
-		PID: "IVSLAB-S23FA0001",
-		Organization: "Brand-Org",
-		TransferDate: "2023-05-17",
-	})
-	
-	transferPartAsync(contract, TransferPartArgs{
-		PID: "IVSLAB-N23FA0001",
-		Organization: "Brand-Org",
-		TransferDate: "2023-05-17",
-	})
-	
-	transferPartAsync(contract, TransferPartArgs{
-		PID: "IVSLAB-C23FA0001",
-		Organization: "Brand-Org",
-		TransferDate: "2023-05-17",
-	})
-	
-	transferPartAsync(contract, TransferPartArgs{
-		PID: "IVSLAB-V23FA0001",
-		Organization: "Brand-Org",
-		TransferDate: "2023-05-17",
-	})
 	initLedger(contract)
 	getAllAssets(contract)
 	getAllParts(contract)
@@ -107,7 +84,7 @@ func main() {
 	createAsset(contract)
 	readAssetByID(contract)
 	readPartByID(contract)
-//	transferPartAsync(contract)
+	transferPartAsync(contract)
 	getAssetsByRange(contract)
 	queryAssetsByOrganization(contract)
 	getAssetHistory(contract)	
@@ -221,15 +198,9 @@ func getAllAssets(contract *client.Contract) {
 
 // Submit transaction asynchronously, blocking until the transaction has been sent to the orderer, and allowing
 // this thread to process the chaincode response (e.g. update a UI) without waiting for the commit notification
-type TransferPartArgs struct {
-	PID                  string
-	Organization         string
-	TransferDate	     string
-}
-
-func transferPartAsync(contract *client.Contract, args TransferPartArgs) {
+func transferPartAsync(contract *client.Contract) {
 	fmt.Printf("\n--> Async Submit Transaction: TransferPart, updates existing part Organization and TransferDate")
-	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments(args.PID, args.TransferDate, args.Organization))
+	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-S23FA0002", "2023-05-18", "Brand.Co"))
 	if err != nil {
 		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
 	}
@@ -243,7 +214,6 @@ func transferPartAsync(contract *client.Contract, args TransferPartArgs) {
 	}
 	fmt.Printf("*** Transaction committed successfully\n")
 }
-
 // Submit a transaction synchronously, blocking until it has been committed to the ledger.
 func createPart(contract *client.Contract) {
 	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, Organization, ManufactureDate\n")
