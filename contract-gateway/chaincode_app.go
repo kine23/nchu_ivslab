@@ -107,7 +107,7 @@ func main() {
 	createAsset(contract)
 	readAssetByID(contract)
 	readPartByID(contract)
-	transferPartAsync(contract)
+//	transferPartAsync(contract)
 	getAssetsByRange(contract)
 	queryAssetsByOrganization(contract)
 	getAssetHistory(contract)	
