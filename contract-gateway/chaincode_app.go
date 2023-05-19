@@ -315,7 +315,7 @@ func getAssetsByRange(contract *client.Contract) {
 func queryAssetsByOrganization(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: QueryAssetsByOrganization, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsByOrganization", `{"selector":{"docType":"asset","madeby":"Brand.Co"}, "use_index":["_design/indexMadeByDoc", "indexMadeBy"]}`, "1", ""))
+	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsByOrganization", "Brand.Co")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
@@ -328,6 +328,23 @@ func queryAssetsByOrganization(contract *client.Contract) {
 
 	result := formatJSON(evaluateResult)
 
+	fmt.Printf("*** Result:%s\n", result)
+}
+func queryAssetsWithPagination(contract *client.Contract) {
+	fmt.Println("\n--> Evaluate Transaction: QueryAssetsWithPagination, function returns all the current assets on the ledger")
+
+	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsWithPagination", `{"selector":{"docType":"asset","madeby":"Brand.Co"}, "use_index":["_design/indexMadeByDoc", "indexMadeBy"]}`, "1", "")
+	if err != nil {
+		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+	}
+
+	// Check if result is null
+	if evaluateResult == nil {
+		fmt.Println("*** No assets found for the specified Brand.Co")
+		return
+	}
+
+	result := formatJSON(evaluateResult)
 	fmt.Printf("*** Result:%s\n", result)
 }
 
