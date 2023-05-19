@@ -315,7 +315,7 @@ func getAssetsByRange(contract *client.Contract) {
 func queryAssetsByOrganization(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: QueryAssetsByOrganization, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsByOrganization", `{"selector":{"docType":"asset","madeby":"Brand.Co"}, "use_index":["_design/indexOrganizationDoc", "indexOrganization"]}`, "1", ""))
+	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsByOrganization", `{"selector":{"docType":"asset","madeby":"Brand.Co"}, "use_index":["_design/indexMadeByDoc", "indexMadeBy"]}`, "1", ""))
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
