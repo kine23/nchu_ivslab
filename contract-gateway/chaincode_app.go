@@ -16,6 +16,7 @@ import (
 	"os"
 	"path"
 	"time"
+	"log"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
@@ -227,14 +228,15 @@ func createPart(contract *client.Contract) {
 }
 
 func createAsset(contract *client.Contract) {
+	log.Println("Starting to create asset...")
 	fmt.Printf("\n--> Submit Transaction: CreateAsset, creates new asset with ID, MadeBy, MadeIn, SerialNumber, SecurityChip, NetworkChip, CMOSChip, VideoCodecChip, ProductionDate\n")
 
 	_, err := contract.SubmitTransaction("CreateAsset", "IVSLAB-PVC23FG0001", "Brand.Co", "Taiwan", "IVSPN902300AACDC01", "IVSLAB-S23FA0001", "IVSLAB-N23FA0001", "IVSLAB-C23FA0001", "IVSLAB-V23FA0001", "2023-05-19")
 	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
+		log.Fatalf("Failed to submit transaction: %v", err)
 	}
 
-	fmt.Printf("*** Transaction committed successfully\n")
+	log.Println("Asset created successfully")
 }
 
 // Evaluate a transaction by partID to query ledger state.
