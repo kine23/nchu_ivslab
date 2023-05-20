@@ -20,43 +20,43 @@ type SmartContract struct {
 
 // Asset Project項目列表.
 type Asset struct {
-	DocType             string `json:"docType"`             // DocType is used to distinguish the various types of objects in state database
-	ID                	string `json:"ID"`                	// 項目唯一ID
-	MadeBy        		string `json:"MadeBy"`        		// 品牌商
-	MadeIn 				string `json:"MadeIn"` 				// 組裝地點
-	SerialNumber        string `json:"SerialNumber"`        // 產品序號
-	SecurityChip        Part   `json:"SecurityChip"`        // 安全晶片組織
-	NetworkChip         Part   `json:"NetworkChip"`         // 網路晶片組織
-	CMOSChip            Part   `json:"CMOSChip"`            // CMOS晶片組織
-	VideoCodecChip		Part   `json:"VideoCodecChip"`      // VideoCodec晶片組織
-	ProductionDate      string `json:"ProductionDate"`      // 產品生產日期
+	DocType             string `json:"docType"`             	// DocType is used to distinguish the various types of objects in state database
+	ID                	string `json:"ID"`                		// 項目唯一ID
+	MadeBy        		string `json:"MadeBy"`        			// 品牌商
+	MadeIn 				string `json:"MadeIn"` 					// 組裝地點
+	SerialNumber        string `json:"SerialNumber"`        	// 產品序號
+	SecurityChip        Part   `json:"SecurityChip"`        	// 安全晶片組織
+	NetworkChip         Part   `json:"NetworkChip"`         	// 網路晶片組織
+	CMOSChip            Part   `json:"CMOSChip"`            	// CMOS晶片組織
+	VideoCodecChip		Part   `json:"VideoCodecChip"`      	// VideoCodec晶片組織
+	ProductionDate      string `json:"ProductionDate"`      	// 產品生產日期
 }
 
 // Part Project項目列表.
 type Part struct {
-	DocType             string `json:"docType"`             // DocType is used to distinguish the various types of objects in state database
-	PID					string `json:"PID"`					// 零件唯ID
-	Manufacturer        string `json:"Manufacturer"`        // 製造商
-	ManufactureLocation string `json:"ManufactureLocation"` // 製造地點
-	PartName            string `json:"PartName"`            // 零件名稱
-	PartNumber          string `json:"PartNumber"`          // 零件批號
-	Organization        string `json:"Organization"`        // 組織
-	ManufactureDate     string `json:"ManufactureDate"`     // 零件製造日期
-	TransferDate        string `json:"TransferDate"`        // 零件交易日期
+	DocType             string `json:"docType"`             	// DocType is used to distinguish the various types of objects in state database
+	PID					string `json:"PID"`						// 零件唯ID
+	Manufacturer        string `json:"Manufacturer"`        	// 製造商
+	ManufactureLocation string `json:"ManufactureLocation"` 	// 製造地點
+	PartName            string `json:"PartName"`            	// 零件名稱
+	PartNumber          string `json:"PartNumber"`          	// 零件批號
+	Organization        string `json:"Organization"`        	// 組織
+	ManufactureDate     string `json:"ManufactureDate"`     	// 零件製造日期
+	TransferDate        string `json:"TransferDate"`        	// 零件交易日期
 }
 
 
 // InitLedger adds a base set of assets to the ledger
 func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	parts := []Part{
-		{PID: "IVSLAB-S23FA0001", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA1", Organization: "Security-Org", ManufactureDate: "2023-05-15"},
-		{PID: "IVSLAB-N23FA0001", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA1", Organization: "Network-Org", ManufactureDate: "2023-05-15"},
-		{PID: "IVSLAB-C23FA0001", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA1", Organization: "CMOS-Org", ManufactureDate: "2023-05-15"},
-		{PID: "IVSLAB-V23FA0001", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA1", Organization: "VideoCodec-Org", ManufactureDate: "2023-05-15"},
-		{PID: "IVSLAB-S23FA0002", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA2", Organization: "Security-Org", ManufactureDate: "2023-05-15"},
-		{PID: "IVSLAB-N23FA0002", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA2", Organization: "Network-Org", ManufactureDate: "2023-05-15"},
-		{PID: "IVSLAB-C23FA0002", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA2", Organization: "CMOS-Org", ManufactureDate: "2023-05-15"},
-		{PID: "IVSLAB-V23FA0002", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA2", Organization: "VideoCodec-Org", ManufactureDate: "2023-05-15"},
+		{PID: "IVSLAB-S23FA0001", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA1", Organization: "Security-Org", ManufactureDate: "2023/05/15"},
+		{PID: "IVSLAB-N23FA0001", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA1", Organization: "Network-Org", ManufactureDate: "2023/05/15"},
+		{PID: "IVSLAB-C23FA0001", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA1", Organization: "CMOS-Org", ManufactureDate: "2023/05/15"},
+		{PID: "IVSLAB-V23FA0001", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA1", Organization: "VideoCodec-Org", ManufactureDate: "2023/05/15"},
+		{PID: "IVSLAB-S23FA0002", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA2", Organization: "Security-Org", ManufactureDate: "2023/05/15"},
+		{PID: "IVSLAB-N23FA0002", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA2", Organization: "Network-Org", ManufactureDate: "2023/05/15"},
+		{PID: "IVSLAB-C23FA0002", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA2", Organization: "CMOS-Org", ManufactureDate: "2023/05/15"},
+		{PID: "IVSLAB-V23FA0002", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA2", Organization: "VideoCodec-Org", ManufactureDate: "2023/05/15"},
 	}
 
 	for _, part := range parts {
@@ -85,7 +85,7 @@ type PaginatedQueryResult struct {
 }
 
 // CreatePart initializes a new part in the ledger
-func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, partID, manufacturer string, manufacturelocation string, partname string, partnumber string, organization string, manufacturedate string) error {
+func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, partID, manufacturer string, manufacturelocation string, partname string, partnumber string, organization string) error {
 	exists, err := t.PartExists(ctx, partID)
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, 
 		PartName:            partname,
 		PartNumber:          partnumber,
 		Organization:        organization,
-		ManufactureDate:     manufacturedate,
+		ManufactureDate:     time.Now().Format("2006/01/02"),
 	}
 	partBytes, err := json.Marshal(part)
 	if err != nil {
@@ -122,20 +122,13 @@ func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, 
 }
 
 // CreateAsset initializes a new asset in the ledger
-func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videocodecchip Part, productiondate string) error {
+func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videocodecchip Part) error {
 	exists, err := t.AssetExists(ctx, assetID)
 	if err != nil {
 		return err
 	}
 	if exists {
 		return fmt.Errorf("the asset %s already exists", assetID)
-	}
-	// Ensure all parts belong to 'Brand-Org'
-	parts := []Part{securitychip, networkchip, cmoschip, videocodecchip}
-	for _, part := range parts {
-		if part.Organization != "Brand-Org" {
-			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
-		}
 	}
 	asset := Asset{
 		DocType:        "asset",
@@ -147,7 +140,7 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		NetworkChip:     networkchip,
 		CMOSChip:        cmoschip,
 		VideoCodecChip:  videocodecchip,
-		ProductionDate:  productiondate,
+		ProductionDate:  time.Now().Format("2006/01/02"),
 	}
 	assetBytes, err := json.Marshal(asset)
 	if err != nil {
@@ -204,7 +197,7 @@ func (t *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, a
 }
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videoCodecchip Part, productiondate string) error {
+func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videoCodecchip Part) error {
 	exists, err := t.AssetExists(ctx, assetID)
 	if err != nil {
 		return err
@@ -224,7 +217,7 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		NetworkChip:     networkchip,
 		CMOSChip:        cmoschip,
 		VideoCodecChip:  videoCodecchip,
-		ProductionDate:  productiondate,
+		ProductionDate:  time.Now().Format("2006/01/02"),
 	}
 	assetBytes, err := json.Marshal(asset)
 	if err != nil {
@@ -284,7 +277,7 @@ func (t *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface,
 }
 
 // TransferPart updates the Organization and TransferDate field of part with given id in world state, and returns the old Organization.
-func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface, partID, partTransferDate string, newOrganization string) (string, error) {
+func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface, partID string, newOrganization string) (string, error) {
 	part, err := t.ReadPart(ctx, partID)
 	if err != nil {
 		return "", fmt.Errorf("failed to read part: %v", err)
@@ -292,8 +285,10 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 
 	oldOrganization := part.Organization
 	part.Organization = newOrganization
-	part.TransferDate = partTransferDate
-	
+
+	// Set the transfer date to the current system date
+	part.TransferDate = time.Now().Format("2006/01/02")
+
 	partBytes, err := json.Marshal(part)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal part: %v", err)
@@ -301,7 +296,7 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 
 	err = ctx.GetStub().PutState(partID, partBytes)
 	if err != nil {
-		return "", fmt.Errorf("failed to update part: %v", err)
+		return "", fmt.Errorf("failed to write part: %v", err)
 	}
 
 	return oldOrganization, nil
@@ -532,3 +527,4 @@ func (t *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface,
 
 	return assetBytes != nil, nil
 }
+
