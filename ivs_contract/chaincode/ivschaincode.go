@@ -49,14 +49,14 @@ type Part struct {
 // InitLedger adds a base set of assets to the ledger
 func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	parts := []Part{
-		{PID: "IVSLAB-S23FA0001", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA1", Organization: "Security-Org", ManufactureDate: "2023/05/15"},
-		{PID: "IVSLAB-N23FA0001", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA1", Organization: "Network-Org", ManufactureDate: "2023/05/15"},
-		{PID: "IVSLAB-C23FA0001", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA1", Organization: "CMOS-Org", ManufactureDate: "2023/05/15"},
-		{PID: "IVSLAB-V23FA0001", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA1", Organization: "VideoCodec-Org", ManufactureDate: "2023/05/15"},
-		{PID: "IVSLAB-S23FA0002", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA2", Organization: "Security-Org", ManufactureDate: "2023/05/15"},
-		{PID: "IVSLAB-N23FA0002", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA2", Organization: "Network-Org", ManufactureDate: "2023/05/15"},
+		{PID: "IVSLAB-S23FA0001", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA1", Organization: "Security-Org", ManufactureDate: "2023-05-15"},
+		{PID: "IVSLAB-N23FA0001", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA1", Organization: "Network-Org", ManufactureDate: "2023-05-15"},
+		{PID: "IVSLAB-C23FA0001", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA1", Organization: "CMOS-Org", ManufactureDate: "2023-05-15"},
+		{PID: "IVSLAB-V23FA0001", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA1", Organization: "VideoCodec-Org", ManufactureDate: "2023-05-15"},
+		{PID: "IVSLAB-S23FA0002", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA2", Organization: "Security-Org", ManufactureDate: "2023-05-15"},
+		{PID: "IVSLAB-N23FA0002", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA2", Organization: "Network-Org", ManufactureDate: "2023-05-15"},
 		{PID: "IVSLAB-C23FA0002", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA2", Organization: "CMOS-Org", ManufactureDate: "2023/05/15"},
-		{PID: "IVSLAB-V23FA0002", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA2", Organization: "VideoCodec-Org", ManufactureDate: "2023/05/15"},
+		{PID: "IVSLAB-V23FA0002", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA2", Organization: "VideoCodec-Org", ManufactureDate: "2023-05-15"},
 	}
 
 	for _, part := range parts {
@@ -102,7 +102,7 @@ func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, 
 		PartName:            partname,
 		PartNumber:          partnumber,
 		Organization:        organization,
-		ManufactureDate:     time.Now().Format("2006/01/02"),
+		ManufactureDate:     time.Now().Format("2006-01-02"),
 	}
 	partBytes, err := json.Marshal(part)
 	if err != nil {
@@ -140,7 +140,7 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		NetworkChip:     networkchip,
 		CMOSChip:        cmoschip,
 		VideoCodecChip:  videocodecchip,
-		ProductionDate:  time.Now().Format("2006/01/02"),
+		ProductionDate:  time.Now().Format("2006-01-02"),
 	}
 	assetBytes, err := json.Marshal(asset)
 	if err != nil {
@@ -217,7 +217,7 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		NetworkChip:     networkchip,
 		CMOSChip:        cmoschip,
 		VideoCodecChip:  videoCodecchip,
-		ProductionDate:  time.Now().Format("2006/01/02"),
+		ProductionDate:  time.Now().Format("2006-01-02"),
 	}
 	assetBytes, err := json.Marshal(asset)
 	if err != nil {
@@ -287,7 +287,7 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 	part.Organization = newOrganization
 
 	// Set the transfer date to the current system date
-	part.TransferDate = time.Now().Format("2006/01/02")
+	part.TransferDate = time.Now().Format("2006-01-02")
 
 	partBytes, err := json.Marshal(part)
 	if err != nil {
@@ -527,4 +527,3 @@ func (t *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface,
 
 	return assetBytes != nil, nil
 }
-
