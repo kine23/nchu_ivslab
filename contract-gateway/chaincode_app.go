@@ -201,7 +201,7 @@ func getAllAssets(contract *client.Contract) {
 // this thread to process the chaincode response (e.g. update a UI) without waiting for the commit notification
 func transferPartAsync(contract *client.Contract) {
 	fmt.Printf("\n--> Async Submit Transaction: TransferPart, updates existing part Organization and TransferDate")
-	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-S23FA0002", "2023-05-18", "Brand.Co"))
+	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-S23FA0002", "Brand.Co"))
 	if err != nil {
 		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
 	}
@@ -217,9 +217,9 @@ func transferPartAsync(contract *client.Contract) {
 }
 // Submit a transaction synchronously, blocking until it has been committed to the ledger.
 func createPart(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, Organization, ManufactureDate\n")
+	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, Organization\n")
 
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-V23FA0003", "VideoCodec.Co", "USA", "VideoCodecChip-v1", "VPN3R1C00AA3", "VideoCodec-Org", "2023-05-15")
+	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-V23FA0003", "VideoCodec.Co", "USA", "VideoCodecChip-v1", "VPN3R1C00AA3", "VideoCodec-Org")
 	if err != nil {
 		panic(fmt.Errorf("failed to submit transaction: %w", err))
 	}
@@ -229,9 +229,9 @@ func createPart(contract *client.Contract) {
 
 func createAsset(contract *client.Contract) {
 	log.Println("Starting to create asset...")
-	fmt.Printf("\n--> Submit Transaction: CreateAsset, creates new asset with ID, MadeBy, MadeIn, SerialNumber, SecurityChip, NetworkChip, CMOSChip, VideoCodecChip, ProductionDate\n")
+	fmt.Printf("\n--> Submit Transaction: CreateAsset, creates new asset with ID, MadeBy, MadeIn, SerialNumber, SecurityChip, NetworkChip, CMOSChip, VideoCodecChip\n")
 
-	_, err := contract.SubmitTransaction("CreateAsset", "IVSLAB-PVC23FG0001", "Brand.Co", "Taiwan", "IVSPN902300AACDC01", "IVSLAB-S23FA0001", "IVSLAB-N23FA0001", "IVSLAB-C23FA0001", "IVSLAB-V23FA0001", "2023-05-19")
+	_, err := contract.SubmitTransaction("CreateAsset", "IVSLAB-PVC23FG0001", "Brand.Co", "Taiwan", "IVSPN902300AACDC01", "IVSLAB-S23FA0001", "IVSLAB-N23FA0001", "IVSLAB-C23FA0001", "IVSLAB-V23FA0001")
 	if err != nil {
 		log.Fatalf("Failed to submit transaction: %v", err)
 	}
