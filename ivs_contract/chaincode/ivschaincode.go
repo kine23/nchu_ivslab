@@ -102,7 +102,7 @@ func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, 
 		PartName:            partname,
 		PartNumber:          partnumber,
 		Organization:        organization,
-		ManufactureDate:     time.Now().Format("2006/01/02"),
+		ManufactureDate:     time.Now().Format("2006-01-02"),
 	}
 	partBytes, err := json.Marshal(part)
 	if err != nil {
@@ -121,8 +121,27 @@ func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, 
 	return ctx.GetStub().PutState(ivsIndexKey, value)	
 }
 
+// GetPart retrieves a part from the ledger by its ID
+func (t *SmartContract) GetPart(ctx contractapi.TransactionContextInterface, partID string) (*Part, error) {
+	partBytes, err := ctx.GetStub().GetState(partID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read from world state: %v", err)
+	}
+	if partBytes == nil {
+		return nil, fmt.Errorf("the part %s does not exist", partID)
+	}
+
+	part := new(Part)
+	err = json.Unmarshal(partBytes, part)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal part: %v", err)
+	}
+
+	return part, nil
+}
+
 // CreateAsset initializes a new asset in the ledger
-func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videocodecchip Part) error {
+func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychipID string, networkchipID string, cmoschipID string, videocodecchipID string) error {
 	exists, err := t.AssetExists(ctx, assetID)
 	if err != nil {
 		return err
@@ -130,17 +149,42 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	if exists {
 		return fmt.Errorf("the asset %s already exists", assetID)
 	}
+
+	// Get the Part instances from the ledger state
+	securitychip, err := t.GetPart(ctx, securitychipID)
+	if err != nil {
+		return err
+	}
+	networkchip, err := t.GetPart(ctx, networkchipID)
+	if err != nil {
+		return err
+	}
+	cmoschip, err := t.GetPart(ctx, cmoschipID)
+	if err != nil {
+		return err
+	}
+	videocodecchip, err := t.GetPart(ctx, videocodecchipID)
+	if err != nil {
+		return err
+	}
+	// Ensure all parts belong to 'Brand-Org'
+	parts := []Part{securitychip, networkchip, cmoschip, videocodecchip}
+	for _, part := range parts {
+		if part.Organization != "Brand-Org" {
+			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
+		}
+	}
 	asset := Asset{
 		DocType:        "asset",
-		ID:              assetID,
-		MadeBy:          madeby,
-		MadeIn:          madein,
-		SerialNumber:    serialnumber,
-		SecurityChip:    securitychip,
-		NetworkChip:     networkchip,
-		CMOSChip:        cmoschip,
-		VideoCodecChip:  videocodecchip,
-		ProductionDate:  time.Now().Format("2006/01/02"),
+		ID:             assetID,
+		MadeBy:         madeby,
+		MadeIn:         madein,
+		SerialNumber:   serialnumber,
+		SecurityChip:   *securitychip,
+		NetworkChip:    *networkchip,
+		CMOSChip:       *cmoschip,
+		VideoCodecChip: *videocodecchip,
+		ProductionDate: time.Now().Format("2006-01-02"),
 	}
 	assetBytes, err := json.Marshal(asset)
 	if err != nil {
@@ -158,6 +202,44 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	value := []byte{0x00}
 	return ctx.GetStub().PutState(ivsIndexKey, value)	
 }
+
+// CreateAsset initializes a new asset in the ledger
+//func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videocodecchip Part) error {
+//	exists, err := t.AssetExists(ctx, assetID)
+//	if err != nil {
+//		return err
+//	}
+//	if exists {
+//		return fmt.Errorf("the asset %s already exists", assetID)
+//	}
+//	asset := Asset{
+//		DocType:        "asset",
+//		ID:              assetID,
+//		MadeBy:          madeby,
+//		MadeIn:          madein,
+//		SerialNumber:    serialnumber,
+//		SecurityChip:    securitychip,
+//		NetworkChip:     networkchip,
+//		CMOSChip:        cmoschip,
+//		VideoCodecChip:  videocodecchip,
+//		ProductionDate:  time.Now().Format("2006-01-02"),
+//	}
+//	assetBytes, err := json.Marshal(asset)
+//	if err != nil {
+//		return err
+//	}
+//
+//	err = ctx.GetStub().PutState(assetID, assetBytes)
+//	if err != nil {
+//		return err
+//	}
+//	ivsIndexKey, err := ctx.GetStub().CreateCompositeKey(index, []string{asset.MadeBy, asset.ID})
+//	if err != nil {
+//		return err
+//	}
+//	value := []byte{0x00}
+//	return ctx.GetStub().PutState(ivsIndexKey, value)	
+//}
 
 // ReadPart retrieves an part from the ledger
 func (t *SmartContract) ReadPart(ctx contractapi.TransactionContextInterface, partID string) (*Part, error) {
@@ -217,7 +299,7 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		NetworkChip:     networkchip,
 		CMOSChip:        cmoschip,
 		VideoCodecChip:  videoCodecchip,
-		ProductionDate:  time.Now().Format("2006/01/02"),
+		ProductionDate:  time.Now().Format("2006-01-02"),
 	}
 	assetBytes, err := json.Marshal(asset)
 	if err != nil {
@@ -287,7 +369,7 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 	part.Organization = newOrganization
 
 	// Set the transfer date to the current system date
-	part.TransferDate = time.Now().Format("2006/01/02")
+	part.TransferDate = time.Now().Format("2006-01-02")
 
 	partBytes, err := json.Marshal(part)
 	if err != nil {
