@@ -60,7 +60,7 @@ func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	}
 
 	for _, part := range parts {
-		err := t.CreatePart(ctx, part.PID, part.Manufacturer, part.ManufactureLocation, part.PartName, part.PartNumber, part.Organization, part.ManufactureDate)
+		err := t.CreatePart(ctx, part.PID, part.Manufacturer, part.ManufactureLocation, part.PartName, part.PartNumber, part.Organization)
 		if err != nil {
 			return err
 		}
