@@ -286,7 +286,7 @@ func (t *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, a
 }
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videocodecchip Part) error {
+func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychipID string, networkchipID string, cmoschipID string, videocodecchipID string) error {
 	exists, err := t.AssetExists(ctx, assetID)
 	if err != nil {
 		return err
