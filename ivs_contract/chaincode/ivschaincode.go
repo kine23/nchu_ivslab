@@ -153,7 +153,7 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	if exists {
 		return fmt.Errorf("the asset %s already exists", assetID)
 	}
-
+	var securitychip, networkchip, cmoschip, videocodecchip *Part
 	// Get the Part instances from the ledger state
 	securitychip, err = t.GetPart(ctx, securitychipID)
 	if err != nil {
@@ -292,6 +292,7 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 	if !exists {
 		return fmt.Errorf("the asset %s does not exist", assetID)
 	}
+	var securitychip, networkchip, cmoschip, videocodecchip *Part
 	// Get the Part instances from the ledger state
 	securitychip, err := t.GetPart(ctx, securitychipID)
 	if err != nil {
