@@ -153,21 +153,21 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	if exists {
 		return fmt.Errorf("the asset %s already exists", assetID)
 	}
-	var securitychip, networkchip, cmoschip, videocodecchip *Part
+	var securitypart, networkpart, cmospart, videocodecpart *Part
 	// Get the Part instances from the ledger state
-	securitychip, err = t.GetPart(ctx, securitychipID)
+	securitypart, err = t.GetPart(ctx, securitychipID)
 	if err != nil {
 		return err
 	}
-	networkchip, err = t.GetPart(ctx, networkchipID)
+	networkpart, err = t.GetPart(ctx, networkchipID)
 	if err != nil {
 		return err
 	}
-	cmoschip, err = t.GetPart(ctx, cmoschipID)
+	cmospart, err = t.GetPart(ctx, cmoschipID)
 	if err != nil {
 		return err
 	}
-	videocodecchip, err = t.GetPart(ctx, videocodecchipID)
+	videocodecpart, err = t.GetPart(ctx, videocodecchipID)
 	if err != nil {
 		return err
 	}
@@ -292,21 +292,21 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 	if !exists {
 		return fmt.Errorf("the asset %s does not exist", assetID)
 	}
-	var securitychip, networkchip, cmoschip, videocodecchip *Part
+	var securitypart, networkpart, cmospart, videocodecpart *Part
 	// Get the Part instances from the ledger state
-	securitychip, err := t.GetPart(ctx, securitychipID)
+	securitypart, err = t.GetPart(ctx, securitychipID)
 	if err != nil {
 		return err
 	}
-	networkchip, err = t.GetPart(ctx, networkchipID)
+	networkpart, err = t.GetPart(ctx, networkchipID)
 	if err != nil {
 		return err
 	}
-	cmoschip, err = t.GetPart(ctx, cmoschipID)
+	cmospart, err = t.GetPart(ctx, cmoschipID)
 	if err != nil {
 		return err
 	}
-	videocodecchip, err = t.GetPart(ctx, videocodecchipID)
+	videocodecpart, err = t.GetPart(ctx, videocodecchipID)
 	if err != nil {
 		return err
 	}
