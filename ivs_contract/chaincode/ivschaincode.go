@@ -159,18 +159,19 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	if err != nil {
 		return err
 	}
-	networkchip, err := t.GetPart(ctx, networkchipID)
+	networkchip, err = t.GetPart(ctx, networkchipID)
 	if err != nil {
 		return err
 	}
-	cmoschip, err := t.GetPart(ctx, cmoschipID)
+	cmoschip, err = t.GetPart(ctx, cmoschipID)
 	if err != nil {
 		return err
 	}
-	videocodecchip, err := t.GetPart(ctx, videocodecchipID)
+	videocodecchip, err = t.GetPart(ctx, videocodecchipID)
 	if err != nil {
 		return err
 	}
+	
 	// Ensure all parts belong to 'Brand-Org'
 	parts := []*Part{securitychip, networkchip, cmoschip, videocodecchip}
 	for _, part := range parts {
@@ -263,7 +264,6 @@ func (t *SmartContract) ReadPart(ctx contractapi.TransactionContextInterface, pa
 
 	return &part, nil
 }
-
 // ReadAsset retrieves an asset from the ledger
 func (t *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, assetID string) (*Asset, error) {
 	assetBytes, err := ctx.GetStub().GetState(assetID)
@@ -297,15 +297,15 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 	if err != nil {
 		return err
 	}
-	networkchip, err := t.GetPart(ctx, networkchipID)
+	networkchip, err = t.GetPart(ctx, networkchipID)
 	if err != nil {
 		return err
 	}
-	cmoschip, err := t.GetPart(ctx, cmoschipID)
+	cmoschip, err = t.GetPart(ctx, cmoschipID)
 	if err != nil {
 		return err
 	}
-	videocodecchip, err := t.GetPart(ctx, videocodecchipID)
+	videocodecchip, err = t.GetPart(ctx, videocodecchipID)
 	if err != nil {
 		return err
 	}
@@ -316,7 +316,6 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
 		}
 	}
-	
 	// overwriting original asset with new asset
 	asset := &Asset{
 		DocType:        "asset",
