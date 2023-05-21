@@ -16,7 +16,6 @@ import (
 	"os"
 	"path"
 	"time"
-	"log"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
@@ -27,13 +26,13 @@ import (
 )
 
 const (
-	mspID="brandMSP"							//所屬組織的MSPID
-	cryptoPath= "/root/MyLab_IVS/organizations/brand.ivsorg.net"		// 中間變量
+	mspID="brandMSP"														//所屬組織的MSPID
+	cryptoPath= "/root/MyLab_IVS/organizations/brand.ivsorg.net"			// 中間變量
 	certPath= cryptoPath + "/registers_users/user1/msp/signcerts/cert.pem"	// client數位簽章
-	keyPath= cryptoPath + "/registers_users/user1/msp/keystore/"		// client私鑰路徑
-	tlsCertPath= cryptoPath + "/alliance/tls-ca-cert.pem"			// client tls證書
-	peerEndpoint= "peer1.brand.ivsorg.net:7151"				// peer節點地址
-	gatewayPeer= "peer1.brand.ivsorg.net"					// peer節點名稱
+	keyPath= cryptoPath + "/registers_users/user1/msp/keystore/"			// client私鑰路徑
+	tlsCertPath= cryptoPath + "/alliance/tls-ca-cert.pem"					// client tls證書
+	peerEndpoint= "peer1.brand.ivsorg.net:7151"								// peer節點地址
+	gatewayPeer= "peer1.brand.ivsorg.net"									// peer節點名稱
 )
 
 var now = time.Now()
@@ -77,19 +76,21 @@ func main() {
 
 	network := gw.GetNetwork(channelName)
 	contract := network.GetContract(chaincodeName)
-	
+
 	initLedger(contract)
-	getAllAssets(contract)
-	getAllParts(contract)
-	createPart(contract)
-	createAsset(contract)
-	readAssetByID(contract)
-	readPartByID(contract)
-	transferPartAsync(contract)
-	getAssetsByRange(contract)
-	queryAssetsByOrganization(contract)
-	getAssetHistory(contract)	
-	exampleErrorHandling(contract)
+//	transferPartAsync(contract)
+	transferPartByManufacturerAsync(contract)
+//	createPart(contract)
+//	getAllParts(contract)
+//	createAsset(contract)
+//	updateAsset(contract)
+//	readAssetByID(contract)
+//	readPartByID(contract)
+//	getAllAssets(contract)
+//	getAssetsBySerialNumberRange(contract)
+//	queryAssetsBySerialNumber(contract)
+//	getAssetHistory(contract)	
+//	exampleErrorHandling(contract)
 }
 
 // newGrpcConnection creates a gRPC connection to the Gateway server.
@@ -102,7 +103,6 @@ func newGrpcConnection() *grpc.ClientConn {
 	certPool := x509.NewCertPool()
 	certPool.AddCert(certificate)
 	transportCredentials := credentials.NewClientTLSFromCert(certPool, gatewayPeer)
-
 	connection, err := grpc.Dial(peerEndpoint, grpc.WithTransportCredentials(transportCredentials))
 	if err != nil {
 		panic(fmt.Errorf("failed to create gRPC connection: %w", err))
@@ -193,7 +193,6 @@ func getAllAssets(contract *client.Contract) {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
 	result := formatJSON(evaluateResult)
-
 	fmt.Printf("*** Result:%s\n", result)
 }
 
@@ -201,42 +200,76 @@ func getAllAssets(contract *client.Contract) {
 // this thread to process the chaincode response (e.g. update a UI) without waiting for the commit notification
 func transferPartAsync(contract *client.Contract) {
 	fmt.Printf("\n--> Async Submit Transaction: TransferPart, updates existing part Organization and TransferDate")
-	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-S23FA0002", "Brand.Co"))
+
+	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-N23FA0001", "Brand-Org"))
 	if err != nil {
 		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
 	}
 
-	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to %d. \n", string(submitResult))
+	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to Brand.Co. \n", string(submitResult))
 	fmt.Println("*** Waiting for transaction commit.")
+
 	if commitStatus, err := commit.Status(); err != nil {
 		panic(fmt.Errorf("failed to get commit status: %w", err))
 	} else if !commitStatus.Successful {
-		panic(fmt.Errorf("transaction %s failed to commit with status: %d", commitStatus.TransactionID, int32(commitStatus.Code)))
+		panic(fmt.Errorf("transaction %s failed to commit with status: Brand.Co", commitStatus.TransactionID, int32(commitStatus.Code)))
 	}
 	fmt.Printf("*** Transaction committed successfully\n")
 }
-// Submit a transaction synchronously, blocking until it has been committed to the ledger.
-func createPart(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, Organization\n")
 
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-V23FA0003", "VideoCodec.Co", "USA", "VideoCodecChip-v1", "VPN3R1C00AA3", "VideoCodec-Org")
+func transferPartByManufacturerAsync(contract *client.Contract) {
+	fmt.Printf("\n--> Async Submit Transaction: TransferPart By Manufacturer, updates existing part Organization and TransferDate")
+
+	submitResult, commit, err := contract.SubmitAsync("TransferPartByManufacturer", client.WithArguments("VideoCodec.Co", "Brand-Org"))
 	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction: %w", err))
+		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
 	}
 
+	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to Brand.Co. \n", string(submitResult))
+	fmt.Println("*** Waiting for transaction commit.")
+
+	if commitStatus, err := commit.Status(); err != nil {
+		panic(fmt.Errorf("failed to get commit status: %w", err))
+	} else if !commitStatus.Successful {
+		panic(fmt.Errorf("transaction %s failed to commit with status: Brand.Co", commitStatus.TransactionID, int32(commitStatus.Code)))
+	}
 	fmt.Printf("*** Transaction committed successfully\n")
 }
 
+// Submit a transaction synchronously, blocking until it has been committed to the ledger.
 func createAsset(contract *client.Contract) {
-	log.Println("Starting to create asset...")
+
 	fmt.Printf("\n--> Submit Transaction: CreateAsset, creates new asset with ID, MadeBy, MadeIn, SerialNumber, SecurityChip, NetworkChip, CMOSChip, VideoCodecChip\n")
 
 	_, err := contract.SubmitTransaction("CreateAsset", "IVSLAB-PVC23FG0001", "Brand.Co", "Taiwan", "IVSPN902300AACDC01", "IVSLAB-S23FA0001", "IVSLAB-N23FA0001", "IVSLAB-C23FA0001", "IVSLAB-V23FA0001")
 	if err != nil {
-		log.Fatalf("Failed to submit transaction: %v", err)
+		panic(fmt.Errorf("failed to submit transaction: %w", err))
 	}
 
-	log.Println("Asset created successfully")
+	fmt.Printf("*** Transaction committed Part created successfully\n")
+}
+
+// Submit a transaction synchronously, blocking until it has been committed to the ledger.
+func updateAsset(contract *client.Contract) {
+	fmt.Printf("\n--> Submit Transaction: UpdateAsset, update asset with ID, MadeBy, MadeIn, SerialNumber, SecurityChip, NetworkChip, CMOSChip, VideoCodecChip\n")
+
+	_, err := contract.SubmitTransaction("UpdateAsset", "IVSLAB-PVC23FG0001", "Brand.Co", "Taiwan", "IVSPN902300AACDC01", "IVSLAB-S23FA0001", "IVSLAB-N23FA0001", "IVSLAB-C23FA0001", "IVSLAB-V23FA0001")
+	if err != nil {
+		panic(fmt.Errorf("failed to submit transaction: %w", err))
+	}
+
+	fmt.Printf("*** Transaction committed Part created successfully\n")
+}
+
+func createPart(contract *client.Contract) {
+	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, Organization\n")
+
+	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-V23FA0004", "VideoCodec.Co", "USA", "VideoCodecChip-v1", "VPN3R1C00AA4", "VideoCodec-Org")
+	if err != nil {
+		panic(fmt.Errorf("failed to submit transaction: %w", err))
+	}
+
+	fmt.Printf("*** Transaction committed Part created successfully\n")
 }
 
 // Evaluate a transaction by partID to query ledger state.
@@ -265,29 +298,29 @@ func readAssetByID(contract *client.Contract) {
 	fmt.Printf("*** Result:%s\n", result)
 }
 
+func getAssetsBySerialNumberRange(contract *client.Contract) {
+	fmt.Println("\n--> Evaluate Transaction: GetAssetsBySerialNumberRange, function returns all the current assets on the ledger")
 
-func getAssetsByRange(contract *client.Contract) {
-	fmt.Println("\n--> Evaluate Transaction: GetAssetsByRange, function returns all the current assets on the ledger")
-
-	evaluateResult, err := contract.EvaluateTransaction("GetAssetsByRange", "IVSLAB-PVC23FG0001", "IVSLAB-PVC23FG0002")
+	evaluateResult, err := contract.EvaluateTransaction("GetAssetsBySerialNumberRange", "IVSPN902300AACDC01", "IVSPN902300AACDC02")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
 	// 檢查回傳的數據是否為空，只有當數據不為空時才進行格式化
 	if len(evaluateResult) > 0 {
 	result := formatJSON(evaluateResult)
-	
+
 	fmt.Printf("*** Result:%s\n", result)
-	
+
 	} else {
-         
+
          fmt.Println("No assets found in the given range.")
     }
 }
-func queryAssetsByOrganization(contract *client.Contract) {
-	fmt.Println("\n--> Evaluate Transaction: QueryAssetsByOrganization, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsByOrganization", "Brand.Co")
+func queryAssetsBySerialNumber(contract *client.Contract) {
+	fmt.Println("\n--> Evaluate Transaction: QueryAssetsBySerialNumber, function returns the current assets By SerialNumber on the ledger")
+
+	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsBySerialNumber", "IVSPN902300AACDC01", "IVSPN902300AACDC02")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
@@ -302,21 +335,16 @@ func queryAssetsByOrganization(contract *client.Contract) {
 
 	fmt.Printf("*** Result:%s\n", result)
 }
-func queryAssetsWithPagination(contract *client.Contract) {
-	fmt.Println("\n--> Evaluate Transaction: QueryAssetsWithPagination, function returns all the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("QueryAssetsWithPagination", `{"selector":{"docType":"asset","madeby":"Brand.Co"}, "use_index":["_design/indexMadeByDoc", "indexMadeBy"]}`, "1", "")
+func queryAssets(contract *client.Contract) {
+	fmt.Println("\n--> Evaluate Transaction: QueryAssets, function returns the current assets on the ledger")
+
+	evaluateResult, err := contract.EvaluateTransaction("QueryAssets", '{"selector":{"madeby":"Brand.Co"}}')
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
-
-	// Check if result is null
-	if evaluateResult == nil {
-		fmt.Println("*** No assets found for the specified Brand.Co")
-		return
-	}
-
 	result := formatJSON(evaluateResult)
+
 	fmt.Printf("*** Result:%s\n", result)
 }
 
