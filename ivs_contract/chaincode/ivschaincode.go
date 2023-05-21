@@ -158,19 +158,19 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	var cmospart *Part
 	var videocodecpart *Part
 	// Get the Part instances from the ledger state
-	securitypart, err := t.GetPart(ctx, securitychipID)
+	securitypart, err = t.GetPart(ctx, securitychipID)
 	if err != nil {
 		return err
 	}
-	networkpart, err := t.GetPart(ctx, networkchipID)
+	networkpart, err = t.GetPart(ctx, networkchipID)
 	if err != nil {
 		return err
 	}
-	cmospart, err := t.GetPart(ctx, cmoschipID)
+	cmospart, err = t.GetPart(ctx, cmoschipID)
 	if err != nil {
 		return err
 	}
-	videocodecpart, err := t.GetPart(ctx, videocodecchipID)
+	videocodecpart, err = t.GetPart(ctx, videocodecchipID)
 	if err != nil {
 		return err
 	}	
@@ -380,33 +380,9 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 
 	return oldOrganization, nil
 }
-// TransferPart updates the Organization and TransferDate field of part with given id in world state, and returns the old Organization.
-func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface, partID string, newOrganization string) (string, error) {
-	part, err := t.ReadPart(ctx, partID)
-	if err != nil {
-		return "", fmt.Errorf("failed to read part: %v", err)
-	}
 
-	oldOrganization := part.Organization
-	part.Organization = newOrganization
-
-	// Set the transfer date to the current system date
-	part.TransferDate = time.Now().Format("2006-01-02")
-
-	partBytes, err := json.Marshal(part)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal part: %v", err)
-	}
-
-	err = ctx.GetStub().PutState(partID, partBytes)
-	if err != nil {
-		return "", fmt.Errorf("failed to write part: %v", err)
-	}
-
-	return oldOrganization, nil
-}
 // TransferParts transfers parts from one manufacturer to another
-func (t *SimpleChaincode) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
+func (t *SmartContract) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
 	// Execute a key range query on all keys starting with 'manufacturer'
 	manufacturerPartResultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(index, []string{manufacturer})
 	if err != nil {
@@ -529,7 +505,7 @@ func (t *SmartContract) GetAssetsBySerialNumberRange(ctx contractapi.Transaction
 }
 
 func (t *SmartContract) QueryAssetsBySerialNumber(ctx contractapi.TransactionContextInterface, startSerialNumber, endSerialNumber string) ([]*Asset, error) {
-	queryString := fmt.Sprintf(`{"selector":{"SerialNumber":{"$gte":"%s", "$lte":"%s"}}}`, startkey, endkey)
+	queryString := fmt.Sprintf(`{"selector":{"SerialNumber":{"$gte":"%s", "$lte":"%s"}}}`, startSerialNumber, endSerialNumber)
 	return getQueryResultForQueryString(ctx, queryString)
 }
 
