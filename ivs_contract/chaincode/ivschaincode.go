@@ -210,44 +210,6 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	return ctx.GetStub().PutState(ivsIndexKey, value)	
 }
 
-// CreateAsset initializes a new asset in the ledger
-//func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videocodecchip Part) error {
-//	exists, err := t.AssetExists(ctx, assetID)
-//	if err != nil {
-//		return err
-//	}
-//	if exists {
-//		return fmt.Errorf("the asset %s already exists", assetID)
-//	}
-//	asset := Asset{
-//		DocType:        "asset",
-//		ID:              assetID,
-//		MadeBy:          madeby,
-//		MadeIn:          madein,
-//		SerialNumber:    serialnumber,
-//		SecurityChip:    securitychip,
-//		NetworkChip:     networkchip,
-//		CMOSChip:        cmoschip,
-//		VideoCodecChip:  videocodecchip,
-//		ProductionDate:  time.Now().Format("2006-01-02"),
-//	}
-//	assetBytes, err := json.Marshal(asset)
-//	if err != nil {
-//		return err
-//	}
-//
-//	err = ctx.GetStub().PutState(assetID, assetBytes)
-//	if err != nil {
-//		return err
-//	}
-//	ivsIndexKey, err := ctx.GetStub().CreateCompositeKey(index, []string{asset.MadeBy, asset.ID})
-//	if err != nil {
-//		return err
-//	}
-//	value := []byte{0x00}
-//	return ctx.GetStub().PutState(ivsIndexKey, value)	
-//}
-
 // ReadPart retrieves an part from the ledger
 func (t *SmartContract) ReadPart(ctx contractapi.TransactionContextInterface, partID string) (*Part, error) {
 	partBytes, err := ctx.GetStub().GetState(partID)
@@ -418,6 +380,72 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 
 	return oldOrganization, nil
 }
+// TransferPart updates the Organization and TransferDate field of part with given id in world state, and returns the old Organization.
+func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface, partID string, newOrganization string) (string, error) {
+	part, err := t.ReadPart(ctx, partID)
+	if err != nil {
+		return "", fmt.Errorf("failed to read part: %v", err)
+	}
+
+	oldOrganization := part.Organization
+	part.Organization = newOrganization
+
+	// Set the transfer date to the current system date
+	part.TransferDate = time.Now().Format("2006-01-02")
+
+	partBytes, err := json.Marshal(part)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal part: %v", err)
+	}
+
+	err = ctx.GetStub().PutState(partID, partBytes)
+	if err != nil {
+		return "", fmt.Errorf("failed to write part: %v", err)
+	}
+
+	return oldOrganization, nil
+}
+// TransferParts transfers parts from one manufacturer to another
+func (t *SimpleChaincode) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
+	// Execute a key range query on all keys starting with 'manufacturer'
+	manufacturerPartResultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(index, []string{manufacturer})
+	if err != nil {
+		return err
+	}
+	defer manufacturerPartResultsIterator.Close()
+
+	for manufacturerPartResultsIterator.HasNext() {
+		responseRange, err := manufacturerPartResultsIterator.Next()
+		if err != nil {
+			return err
+		}
+
+		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(responseRange.Key)
+		if err != nil {
+			return err
+		}
+
+		if len(compositeKeyParts) > 1 {
+			returnedPartID := compositeKeyParts[1]
+			part, err := t.ReadPart(ctx, returnedPartID)
+			if err != nil {
+				return err
+			}
+			part.Organization = newOrganization
+			part.TransferDate = time.Now().Format("2006-01-02")
+			partBytes, err := json.Marshal(part)
+			if err != nil {
+				return err
+			}
+			err = ctx.GetStub().PutState(returnedPartID, partBytes)
+			if err != nil {
+				return fmt.Errorf("transfer failed for part %s: %v", returnedPartID, err)
+			}
+		}
+	}
+
+	return nil
+}
 
 // constructQueryResponseFromIteratorPart constructs a slice of parts from the resultsIterator
 func constructQueryResponseFromIteratorPart(resultsIterator shim.StateQueryIteratorInterface) ([]*Part, error) {
@@ -470,7 +498,7 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
 // GetAllParts returns all parts found in world state
 func (t *SmartContract) GetAllParts(ctx contractapi.TransactionContextInterface) ([]*Part, error) {
 	// range query with empty string for startKey and endKey does an
-	// open-ended query of all assets in the chaincode namespace.
+	// open-ended query of all parts in the chaincode namespace.
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
 		return nil, err
@@ -478,19 +506,6 @@ func (t *SmartContract) GetAllParts(ctx contractapi.TransactionContextInterface)
 	defer resultsIterator.Close()
 
 	return constructQueryResponseFromIteratorPart(resultsIterator)
-}
-
-// GetAllAssets returns all assets found in world state
-func (t *SmartContract) GetAllAssets(ctx contractapi.TransactionContextInterface) ([]*Asset, error) {
-	// range query with empty string for startKey and endKey does an
-	// open-ended query of all assets in the chaincode namespace.
-	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	return constructQueryResponseFromIterator(resultsIterator)
 }
 
 func (t *SmartContract) GetPartsByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*Part, error) {
@@ -503,8 +518,8 @@ func (t *SmartContract) GetPartsByRange(ctx contractapi.TransactionContextInterf
 	return constructQueryResponseFromIteratorPart(resultsIterator)
 }
 
-func (t *SmartContract) GetAssetsByRange(ctx contractapi.TransactionContextInterface, startKey, endKey string) ([]*Asset, error) {
-	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+func (t *SmartContract) GetAssetsBySerialNumberRange(ctx contractapi.TransactionContextInterface, startSerialNumber, endSerialNumber string) ([]*Asset, error) {
+	resultsIterator, err := ctx.GetStub().GetStateByRange(startSerialNumber, endSerialNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -513,8 +528,8 @@ func (t *SmartContract) GetAssetsByRange(ctx contractapi.TransactionContextInter
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
-func (t *SmartContract) QueryAssetsByOrganization(ctx contractapi.TransactionContextInterface, madeby string) ([]*Asset, error) {
-	queryString := fmt.Sprintf(`{"selector":{"docType":"asset","madeby":"%s"}}`, madeby)
+func (t *SmartContract) QueryAssetsBySerialNumber(ctx contractapi.TransactionContextInterface, startSerialNumber, endSerialNumber string) ([]*Asset, error) {
+	queryString := fmt.Sprintf(`{"selector":{"SerialNumber":{"$gte":"%s", "$lte":"%s"}}}`, startkey, endkey)
 	return getQueryResultForQueryString(ctx, queryString)
 }
 
