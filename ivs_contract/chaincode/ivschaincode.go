@@ -30,6 +30,7 @@ type Asset struct {
 	CMOSChip            Part   `json:"CMOSChip"`            	// CMOS晶片組織
 	VideoCodecChip		Part   `json:"VideoCodecChip"`      	// VideoCodec晶片組織
 	ProductionDate      string `json:"ProductionDate"`      	// 產品生產日期
+	Updated				string `json:"Updated"`      			// 產品更新日期
 }
 
 // Part Project項目列表.
@@ -45,7 +46,6 @@ type Part struct {
 	TransferDate        string `json:"TransferDate"`        	// 零件交易日期
 }
 
-
 // InitLedger adds a base set of assets to the ledger
 func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	parts := []Part{
@@ -57,6 +57,10 @@ func (t *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 		{PID: "IVSLAB-N23FA0002", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA2", Organization: "Network-Org"},
 		{PID: "IVSLAB-C23FA0002", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA2", Organization: "CMOS-Org"},
 		{PID: "IVSLAB-V23FA0002", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA2", Organization: "VideoCodec-Org"},
+		{PID: "IVSLAB-S23FA0003", Manufacturer: "Security.Co", ManufactureLocation: "Taiwan", PartName: "SecurityChip-v1", PartNumber: "SPN3R1C00AA3", Organization: "Security-Org"},
+		{PID: "IVSLAB-N23FA0003", Manufacturer: "Network.Co", ManufactureLocation: "Taiwan", PartName: "NetworkChip-v1", PartNumber: "NPN3R1C00AA3", Organization: "Network-Org"},
+		{PID: "IVSLAB-C23FA0003", Manufacturer: "CMOS.Co", ManufactureLocation: "USA", PartName: "CMOSChip-v1", PartNumber: "CPN3R1C00AA3", Organization: "CMOS-Org"},
+		{PID: "IVSLAB-V23FA0003", Manufacturer: "VideoCodec.Co", ManufactureLocation: "USA", PartName: "VideoCodecChip-v1", PartNumber: "VPN3R1C00AA3", Organization: "VideoCodec-Org"},		
 	}
 
 	for _, part := range parts {
@@ -168,7 +172,7 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		return err
 	}
 	// Ensure all parts belong to 'Brand-Org'
-	parts := []Part{securitychip, networkchip, cmoschip, videocodecchip}
+	parts := []*Part{securitychip, networkchip, cmoschip, videocodecchip}
 	for _, part := range parts {
 		if part.Organization != "Brand-Org" {
 			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
@@ -259,6 +263,7 @@ func (t *SmartContract) ReadPart(ctx contractapi.TransactionContextInterface, pa
 
 	return &part, nil
 }
+
 // ReadAsset retrieves an asset from the ledger
 func (t *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, assetID string) (*Asset, error) {
 	assetBytes, err := ctx.GetStub().GetState(assetID)
@@ -279,7 +284,7 @@ func (t *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, a
 }
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videoCodecchip Part) error {
+func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, assetID string, madeby string, madein string, serialnumber string, securitychip Part, networkchip Part, cmoschip Part, videocodecchip Part) error {
 	exists, err := t.AssetExists(ctx, assetID)
 	if err != nil {
 		return err
@@ -287,7 +292,31 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 	if !exists {
 		return fmt.Errorf("the asset %s does not exist", assetID)
 	}
-
+	// Get the Part instances from the ledger state
+	securitychip, err := t.GetPart(ctx, securitychipID)
+	if err != nil {
+		return err
+	}
+	networkchip, err := t.GetPart(ctx, networkchipID)
+	if err != nil {
+		return err
+	}
+	cmoschip, err := t.GetPart(ctx, cmoschipID)
+	if err != nil {
+		return err
+	}
+	videocodecchip, err := t.GetPart(ctx, videocodecchipID)
+	if err != nil {
+		return err
+	}
+	// Ensure all parts belong to 'Brand-Org'
+	parts := []*Part{securitychip, networkchip, cmoschip, videocodecchip}
+	for _, part := range parts {
+		if part.Organization != "Brand-Org" {
+			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
+		}
+	}
+	
 	// overwriting original asset with new asset
 	asset := &Asset{
 		DocType:        "asset",
@@ -300,6 +329,7 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		CMOSChip:        cmoschip,
 		VideoCodecChip:  videoCodecchip,
 		ProductionDate:  time.Now().Format("2006-01-02"),
+		Updated:  		 time.Now().Format("2006-01-02"),
 	}
 	assetBytes, err := json.Marshal(asset)
 	if err != nil {
