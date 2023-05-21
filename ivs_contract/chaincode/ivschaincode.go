@@ -155,7 +155,7 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	}
 
 	// Get the Part instances from the ledger state
-	securitychip, err := t.GetPart(ctx, securitychipID)
+	securitychip, err = t.GetPart(ctx, securitychipID)
 	if err != nil {
 		return err
 	}
@@ -323,10 +323,10 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		MadeBy:          madeby,
 		MadeIn:          madein,
 		SerialNumber:    serialnumber,
-		SecurityChip:    securitychip,
-		NetworkChip:     networkchip,
-		CMOSChip:        cmoschip,
-		VideoCodecChip:  videoCodecchip,
+		SecurityChip:    *securitychip,
+		NetworkChip:     *networkchip,
+		CMOSChip:        *cmoschip,
+		VideoCodecChip:  *videoCodecchip,
 		ProductionDate:  time.Now().Format("2006-01-02"),
 		Updated:  		 time.Now().Format("2006-01-02"),
 	}
