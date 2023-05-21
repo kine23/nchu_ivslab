@@ -175,7 +175,7 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		return err
 	}	
 	// Ensure all parts belong to 'Brand-Org'
-	parts := []*Part{securitychip, networkchip, cmoschip, videocodecchip}
+	parts := []*Part{securitypart, networkpart, cmospart, videocodecpart}
 	for _, part := range parts {
 		if part.Organization != "Brand-Org" {
 			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
@@ -316,7 +316,7 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		return err
 	}
 	// Ensure all parts belong to 'Brand-Org'
-	parts := []*Part{securitychip, networkchip, cmoschip, videocodecchip}
+	parts := []*Part{securitypart, networkpart, cmospart, videocodecpart}
 	for _, part := range parts {
 		if part.Organization != "Brand-Org" {
 			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
