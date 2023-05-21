@@ -187,10 +187,10 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		MadeBy:         madeby,
 		MadeIn:         madein,
 		SerialNumber:   serialnumber,
-		SecurityChip:   *securitychip,
-		NetworkChip:    *networkchip,
-		CMOSChip:       *cmoschip,
-		VideoCodecChip: *videocodecchip,
+		SecurityChip:   *securitypart,
+		NetworkChip:    *networkpart,
+		CMOSChip:       *cmospart,
+		VideoCodecChip: *videocodecpart,
 		ProductionDate: time.Now().Format("2006-01-02"),
 	}
 	assetBytes, err := json.Marshal(asset)
@@ -299,19 +299,19 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 	var cmospart *Part
 	var videocodecpart *Part
 	// Get the Part instances from the ledger state
-	securitypart, err := t.GetPart(ctx, securitychipID)
+	securitypart, err = t.GetPart(ctx, securitychipID)
 	if err != nil {
 		return err
 	}
-	networkpart, err := t.GetPart(ctx, networkchipID)
+	networkpart, err = t.GetPart(ctx, networkchipID)
 	if err != nil {
 		return err
 	}
-	cmospart, err := t.GetPart(ctx, cmoschipID)
+	cmospart, err = t.GetPart(ctx, cmoschipID)
 	if err != nil {
 		return err
 	}
-	videocodecpart, err := t.GetPart(ctx, videocodecchipID)
+	videocodecpart, err = t.GetPart(ctx, videocodecchipID)
 	if err != nil {
 		return err
 	}
@@ -329,10 +329,10 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		MadeBy:          madeby,
 		MadeIn:          madein,
 		SerialNumber:    serialnumber,
-		SecurityChip:    *securitychip,
-		NetworkChip:     *networkchip,
-		CMOSChip:        *cmoschip,
-		VideoCodecChip:  *videoCodecchip,
+		SecurityChip:    *securitypart,
+		NetworkChip:     *networkpart,
+		CMOSChip:        *cmospart,
+		VideoCodecChip:  *videocodecpart,
 		ProductionDate:  time.Now().Format("2006-01-02"),
 		Updated:  		 time.Now().Format("2006-01-02"),
 	}
