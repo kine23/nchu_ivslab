@@ -153,25 +153,27 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	if exists {
 		return fmt.Errorf("the asset %s already exists", assetID)
 	}
-	var securitypart, networkpart, cmospart, videocodecpart *Part
+	var securitychip *Part
+	var networkchip *Part
+	var cmoschip *Part
+	var videocodecchip *Part
 	// Get the Part instances from the ledger state
-	securitypart, err = t.GetPart(ctx, securitychipID)
+	securitychip, err = t.GetPart(ctx, securitychipID)
 	if err != nil {
 		return err
 	}
-	networkpart, err = t.GetPart(ctx, networkchipID)
+	networkchip, err = t.GetPart(ctx, networkchipID)
 	if err != nil {
 		return err
 	}
-	cmospart, err = t.GetPart(ctx, cmoschipID)
+	cmoschip, err = t.GetPart(ctx, cmoschipID)
 	if err != nil {
 		return err
 	}
-	videocodecpart, err = t.GetPart(ctx, videocodecchipID)
+	videocodecchip, err = t.GetPart(ctx, videocodecchipID)
 	if err != nil {
 		return err
-	}
-	
+	}	
 	// Ensure all parts belong to 'Brand-Org'
 	parts := []*Part{securitychip, networkchip, cmoschip, videocodecchip}
 	for _, part := range parts {
@@ -292,21 +294,24 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 	if !exists {
 		return fmt.Errorf("the asset %s does not exist", assetID)
 	}
-	var securitypart, networkpart, cmospart, videocodecpart *Part
+	var securitychip *Part
+	var networkchip *Part
+	var cmoschip *Part
+	var videocodecchip *Part
 	// Get the Part instances from the ledger state
-	securitypart, err = t.GetPart(ctx, securitychipID)
+	securitychip, err = t.GetPart(ctx, securitychipID)
 	if err != nil {
 		return err
 	}
-	networkpart, err = t.GetPart(ctx, networkchipID)
+	networkchip, err = t.GetPart(ctx, networkchipID)
 	if err != nil {
 		return err
 	}
-	cmospart, err = t.GetPart(ctx, cmoschipID)
+	cmoschip, err = t.GetPart(ctx, cmoschipID)
 	if err != nil {
 		return err
 	}
-	videocodecpart, err = t.GetPart(ctx, videocodecchipID)
+	videocodecchip, err = t.GetPart(ctx, videocodecchipID)
 	if err != nil {
 		return err
 	}
