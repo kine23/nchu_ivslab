@@ -225,7 +225,7 @@ func transferPartsByOrganizationAsync(contract *client.Contract) {
     fmt.Printf("\n--> Async Submit Transaction: TransferPartsByOrganization, transfers all parts from organization %s to organization %s\n", oldOrganization, newOrganization)
 
     // Call TransferPartsByOrganization function asynchronously
-    submitResult, commit, err := contract.SubmitAsync("TransferPartsByOrganization", client.WithArguments(oldOrganization, newOrganization))
+    _, commit, err := contract.SubmitAsync("TransferPartsByOrganization", client.WithArguments(oldOrganization, newOrganization))
     if err != nil {
         panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
     }
