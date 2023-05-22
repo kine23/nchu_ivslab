@@ -382,58 +382,58 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 
 	return oldOrganization, nil
 }
-func (t *SmartContract) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
+//func (t *SmartContract) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
 	// Query the state by the manufacturer
-	resultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(manufacturerPartIndex, []string{manufacturer})
-	if err != nil {
-		return err
-	}
-	defer resultsIterator.Close()
-
+//	resultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(manufacturerPartIndex, []string{manufacturer})
+//	if err != nil {
+//		return err
+//	}
+//	defer resultsIterator.Close()
+//
 	// Iterate through the results
-	for resultsIterator.HasNext() {
+//	for resultsIterator.HasNext() {
 		// Get the current part
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return err
-		}
-
+//		queryResponse, err := resultsIterator.Next()
+//		if err != nil {
+//			return err
+//		}
+//
 		// Get the part ID from the composite key
-		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(queryResponse.Key)
-		if err != nil {
-			return err
-		}
-		partID := compositeKeyParts[1]
-
+//		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(queryResponse.Key)
+//		if err != nil {
+//			return err
+//		}
+//		partID := compositeKeyParts[1]
+//
 		// Get the part from the state
-		partBytes, err := ctx.GetStub().GetState(partID)
-		if err != nil {
-			return err
-		}
-
-		part := new(Part)
-		err = json.Unmarshal(partBytes, part)
-		if err != nil {
-			return err
-		}
-
+//		partBytes, err := ctx.GetStub().GetState(partID)
+//		if err != nil {
+//			return err
+//		}
+//
+//		part := new(Part)
+//		err = json.Unmarshal(partBytes, part)
+//		if err != nil {
+//			return err
+//		}
+//
 		// Change the organization of the part
-		part.Organization = newOrganization
-		part.TransferDate = time.Now().Format("2006-01-02")
-		
+//		part.Organization = newOrganization
+//		part.TransferDate = time.Now().Format("2006-01-02")
+//		
 		// Write the part back to the state
-		partBytes, err = json.Marshal(part)
-		if err != nil {
-			return err
-		}
-		err = ctx.GetStub().PutState(partID, partBytes)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
+//		partBytes, err = json.Marshal(part)
+//		if err != nil {
+//			return err
+//		}
+//		err = ctx.GetStub().PutState(partID, partBytes)
+//		if err != nil {
+//			return err
+//		}
+//	}
+//
+//	return nil
+//}
 
 // TransferParts transfers parts from one manufacturer to another
 func (t *SmartContract) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
