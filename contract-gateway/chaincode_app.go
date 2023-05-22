@@ -339,7 +339,7 @@ func queryAssetsBySerialNumber(contract *client.Contract) {
 func queryAssets(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: QueryAssets, function returns the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("QueryAssets", '{"selector":{"madeby":"Brand.Co"}}')
+	evaluateResult, err := contract.EvaluateTransaction("QueryAssets", "{\"selector\":{\"madeby\":\"Brand.Co\"}}")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}
