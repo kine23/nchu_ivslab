@@ -79,7 +79,7 @@ func main() {
 
 	initLedger(contract)
 	transferPartAsync(contract)
-	transferPartByManufacturer(contract, "ManufacturerA", "OrganizationB")
+	transferPartsByOrganizationAsync(contract)
 	createPart(contract)
 	getAllParts(contract)
 	createAsset(contract)
@@ -217,17 +217,30 @@ func transferPartAsync(contract *client.Contract) {
 	fmt.Printf("*** Transaction committed successfully\n")
 }
 
-func transferPartByManufacturer(contract *client.Contract, manufacturer string, newOrganization string) {
-    fmt.Printf("\n--> Submit Transaction: TransferPartByManufacturer, transfer parts from manufacturer %s to organization %s\n", manufacturer, newOrganization)
+func transferPartsByOrganizationAsync(contract *client.Contract) {
+    // 在這裡直接指定組織名稱
+    oldOrganization := "OldOrganization"
+    newOrganization := "NewOrganization"
 
-    // Call TransferPartByManufacturer function
-    _, err := contract.SubmitTransaction("TransferPartByManufacturer", manufacturer, newOrganization)
+    fmt.Printf("\n--> Async Submit Transaction: TransferPartsByOrganization, transfers all parts from organization %s to organization %s\n", oldOrganization, newOrganization)
+
+    // Call TransferPartsByOrganization function asynchronously
+    submitResult, commit, err := contract.SubmitAsync("TransferPartsByOrganization", client.WithArguments(oldOrganization, newOrganization))
     if err != nil {
-        fmt.Printf("Failed to Submit transaction: %s\n", err)
-        return
+        panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
     }
 
-    fmt.Printf("Successfully transferred parts from manufacturer %s to organization %s\n", manufacturer, newOrganization)
+    fmt.Printf("\n*** Successfully submitted transaction to transfer all parts from organization %s to organization %s. \n", oldOrganization, newOrganization)
+    fmt.Println("*** Waiting for transaction commit.")
+
+    commitStatus, err := commit.Status()
+    if err != nil {
+        panic(fmt.Errorf("failed to get commit status: %w", err))
+    } else if !commitStatus.Successful {
+        panic(fmt.Errorf("transaction %s failed to commit with status: %d", commitStatus.TransactionID, int32(commitStatus.Code)))
+    }
+
+    fmt.Printf("*** Transaction committed successfully\n")
 }
 
 // Submit a transaction synchronously, blocking until it has been committed to the ledger.
