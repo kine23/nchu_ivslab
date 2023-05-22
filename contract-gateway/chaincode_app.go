@@ -79,7 +79,7 @@ func main() {
 
 	initLedger(contract)
 	transferPartAsync(contract)
-	transferPartByManufacturerAsync(contract, "ManufacturerA", "OrganizationB")
+	transferPartByManufacturer(contract, "ManufacturerA", "OrganizationB")
 	createPart(contract)
 	getAllParts(contract)
 	createAsset(contract)
