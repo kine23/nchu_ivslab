@@ -524,15 +524,25 @@ func (t *SmartContract) GetPartsByRange(ctx contractapi.TransactionContextInterf
 	return constructQueryResponseFromIteratorPart(resultsIterator)
 }
 
-func (t *SmartContract) GetAssetsBySerialNumberRange(ctx contractapi.TransactionContextInterface, startSerialNumber, endSerialNumber string) ([]*Asset, error) {
-	resultsIterator, err := ctx.GetStub().GetStateByRange(startSerialNumber, endSerialNumber)
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	return constructQueryResponseFromIterator(resultsIterator)
-}
+//func (t *SmartContract) GetAssetsBySerialNumberRange(ctx contractapi.TransactionContextInterface, startSerialNumber, endSerialNumber string) ([]*Asset, error) {
+//	resultsIterator, err := ctx.GetStub().GetStateByRange(startSerialNumber, endSerialNumber)
+//	if err != nil {
+//		return nil, err
+//	}
+//	defer resultsIterator.Close()
+//
+//	return constructQueryResponseFromIterator(resultsIterator)
+//}
+//func (t *SmartContract) GetAssetsBySerialNumberRange(ctx contractapi.TransactionContextInterface, startSerialNumber, endSerialNumber string) ([]*Asset, error) {
+//    queryString := fmt.Sprintf(`{"selector":{"docType":"asset","SerialNumber":{"$gte":"%s","$lte":"%s"}}}`, startSerialNumber, endSerialNumber)
+//    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+//    if err != nil {
+//        return nil, err
+//    }
+//    defer resultsIterator.Close()
+//
+//   return constructQueryResponseFromIterator(resultsIterator)
+//}
 
 func (t *SmartContract) QueryAssetsBySerialNumber(ctx contractapi.TransactionContextInterface, startSerialNumber, endSerialNumber string) ([]*Asset, error) {
 	queryString := fmt.Sprintf(`{"selector":{"SerialNumber":{"$gte":"%s", "$lte":"%s"}}}`, startSerialNumber, endSerialNumber)
