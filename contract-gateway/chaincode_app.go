@@ -79,7 +79,7 @@ func main() {
 
 	initLedger(contract)
 	transferPartAsync(contract)
-	transferPartByManufacturerAsync(contract)
+	transferPartByManufacturerAsync(contract, "ManufacturerA", "OrganizationB")
 	createPart(contract)
 	getAllParts(contract)
 	createAsset(contract)
@@ -218,10 +218,10 @@ func transferPartAsync(contract *client.Contract) {
 }
 
 func transferPartByManufacturer(contract *client.Contract, manufacturer string, newOrganization string) {
-    fmt.Printf("\n--> Submit Transaction: TransferPartByManufacturer, transfer parts from manufacturer %s to organization %s\n", VideoCodec, Brand)
+    fmt.Printf("\n--> Submit Transaction: TransferPartByManufacturer, transfer parts from manufacturer %s to organization %s\n", manufacturer, newOrganization)
 
     // Call TransferPartByManufacturer function
-    _, err := contract.SubmitTransaction("TransferPartByManufacturer", "VideoCodec.Co", "Brand-Org")
+    _, err := contract.SubmitTransaction("TransferPartByManufacturer", manufacturer, newOrganization)
     if err != nil {
         fmt.Printf("Failed to Submit transaction: %s\n", err)
         return
