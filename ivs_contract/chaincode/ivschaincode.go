@@ -13,7 +13,7 @@ import (
 const manufacturerPartIndex = "manufacturer~partID"
 const madeInSerialNumberIndex = "madeby~serialnumber"
 
-//const index = "madein~serialnumber"
+//const index = "madein~serialnumber" 
 
 // SmartContract provides functions for managing an Asset
 type SmartContract struct {
