@@ -180,7 +180,7 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	parts := []*Part{securitypart, networkpart, cmospart, videocodecpart}
 	for _, part := range parts {
 		if part.Organization != "Brand-Org" {
-			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
+			return fmt.Errorf("part %s does not belong to Brand-Org, it belongs to %s", part.PID, part.Organization)
 		}
 	}
 	asset := Asset{
@@ -283,7 +283,7 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 	parts := []*Part{securitypart, networkpart, cmospart, videocodecpart}
 	for _, part := range parts {
 		if part.Organization != "Brand-Org" {
-			return fmt.Errorf("part %s does not belong to Brand-Org", part.PID)
+			return fmt.Errorf("part %s does not belong to Brand-Org, failed to update asset %s", part.PID, assetID)
 		}
 	}
 	// overwriting original asset with new asset
