@@ -10,10 +10,10 @@ import (
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
-const manufacturerPartIndex = "manufacturer~partID"
+const manufacturerPartIndex = "organization~partID"
 const madeInSerialNumberIndex = "madeby~serialnumber"
 
-//const index = "madein~serialnumber" 
+//const index = "madein~serialnumber"
 
 // SmartContract provides functions for managing an Asset
 type SmartContract struct {
@@ -119,12 +119,12 @@ func (t *SmartContract) CreatePart(ctx contractapi.TransactionContextInterface, 
 	if err != nil {
 		return err
 	}
-	manufacturerPartIndex, err := ctx.GetStub().CreateCompositeKey(manufacturerPartIndex, []string{part.Organization, part.PID})
+	PartIndexKey, err := ctx.GetStub().CreateCompositeKey(manufacturerPartIndex, []string{part.Organization, part.PID})
 	if err != nil {
 		return err
 	}
 	value := []byte{0x00}
-	return ctx.GetStub().PutState(manufacturerPartIndex, value)	
+	return ctx.GetStub().PutState(PartIndexKey, value)	
 }
 
 // GetPart retrieves a part from the ledger by its ID
@@ -204,12 +204,12 @@ func (t *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	if err != nil {
 		return err
 	}
-	madeInSerialNumberIndex, err := ctx.GetStub().CreateCompositeKey(madeInSerialNumberIndex, []string{asset.MadeBy, asset.ID})
+	AssetIndexKey, err := ctx.GetStub().CreateCompositeKey(madeInSerialNumberIndex, []string{asset.MadeBy, asset.ID})
 	if err != nil {
 		return err
 	}
 	value := []byte{0x00}
-	return ctx.GetStub().PutState(madeInSerialNumberIndex, value)	
+	return ctx.GetStub().PutState(AssetIndexKey, value)	
 }
 
 // ReadPart retrieves an part from the ledger
@@ -309,12 +309,12 @@ func (t *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 	if err != nil {
 		return err
 	}
-	madeInSerialNumberIndex, err := ctx.GetStub().CreateCompositeKey(madeInSerialNumberIndex, []string{asset.MadeBy, asset.ID})
+	AssetIndexKey, err := ctx.GetStub().CreateCompositeKey(madeInSerialNumberIndex, []string{asset.MadeBy, asset.ID})
 	if err != nil {
 		return err
 	}
 	value := []byte{0x00}
-	return ctx.GetStub().PutState(madeInSerialNumberIndex, value)	
+	return ctx.GetStub().PutState(AssetIndexKey, value)	
 }
 
 // DeletePart removes an part key-value pair from the ledger
@@ -328,13 +328,13 @@ func (t *SmartContract) DeletePart(ctx contractapi.TransactionContextInterface, 
 		return fmt.Errorf("failed to delete part %s: %v", partID, err)
 	}
 
-	manufacturerPartIndex, err := ctx.GetStub().CreateCompositeKey(manufacturerPartIndex, []string{part.Manufacturer, part.PID})
+	PartIndexKey, err := ctx.GetStub().CreateCompositeKey(manufacturerPartIndex, []string{part.Organization, part.PID})
 	if err != nil {
 		return err
 	}
 
 	// Delete index entry
-	return ctx.GetStub().DelState(manufacturerPartIndex)
+	return ctx.GetStub().DelState(PartIndexKey)
 }
 
 // DeleteAsset removes an asset key-value pair from the ledger
@@ -348,13 +348,13 @@ func (t *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("failed to delete asset %s: %v", assetID, err)
 	}
 
-	madeInSerialNumberIndex, err := ctx.GetStub().CreateCompositeKey(madeInSerialNumberIndex, []string{asset.MadeBy, asset.ID})
+	AssetIndexKey, err := ctx.GetStub().CreateCompositeKey(madeInSerialNumberIndex, []string{asset.MadeBy, asset.ID})
 	if err != nil {
 		return err
 	}
 
 	// Delete index entry
-	return ctx.GetStub().DelState(madeInSerialNumberIndex)
+	return ctx.GetStub().DelState(AssetIndexKey)
 }
 
 // TransferPart updates the Organization and TransferDate field of part with given id in world state, and returns the old Organization.
@@ -382,95 +382,71 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 
 	return oldOrganization, nil
 }
-//func (t *SmartContract) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
-	// Query the state by the manufacturer
-//	resultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(manufacturerPartIndex, []string{manufacturer})
-//	if err != nil {
-//		return err
-//	}
-//	defer resultsIterator.Close()
-//
-	// Iterate through the results
-//	for resultsIterator.HasNext() {
-		// Get the current part
-//		queryResponse, err := resultsIterator.Next()
-//		if err != nil {
-//			return err
-//		}
-//
-		// Get the part ID from the composite key
-//		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(queryResponse.Key)
-//		if err != nil {
-//			return err
-//		}
-//		partID := compositeKeyParts[1]
-//
-		// Get the part from the state
-//		partBytes, err := ctx.GetStub().GetState(partID)
-//		if err != nil {
-//			return err
-//		}
-//
-//		part := new(Part)
-//		err = json.Unmarshal(partBytes, part)
-//		if err != nil {
-//			return err
-//		}
-//
-		// Change the organization of the part
-//		part.Organization = newOrganization
-//		part.TransferDate = time.Now().Format("2006-01-02")
-//		
-		// Write the part back to the state
-//		partBytes, err = json.Marshal(part)
-//		if err != nil {
-//			return err
-//		}
-//		err = ctx.GetStub().PutState(partID, partBytes)
-//		if err != nil {
-//			return err
-//		}
-//	}
-//
-//	return nil
-//}
-
-// TransferParts transfers parts from one manufacturer to another
-func (t *SmartContract) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
-	// Execute a key range query on all keys starting with 'manufacturer'
-	manufacturerPartResultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(index, []string{manufacturer})
+// TransferPartsByOrganization transfers all parts from one organization to another
+func (t *SmartContract) TransferPartsByOrganization(ctx contractapi.TransactionContextInterface, oldOrganization, newOrganization string) error {
+	// Query the state by the old organization
+	resultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(manufacturerPartIndex, []string{oldOrganization})
 	if err != nil {
 		return err
 	}
-	defer manufacturerPartResultsIterator.Close()
+	defer resultsIterator.Close()
 
-	for manufacturerPartResultsIterator.HasNext() {
-		responseRange, err := manufacturerPartResultsIterator.Next()
+	// Iterate through the results
+	for resultsIterator.HasNext() {
+		// Get the current part
+		queryResponse, err := resultsIterator.Next()
 		if err != nil {
 			return err
 		}
 
-		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(responseRange.Key)
+		// Get the part ID from the composite key
+		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(queryResponse.Key)
+		if err != nil {
+			return err
+		}
+		partID := compositeKeyParts[1]
+
+		// Get the part from the state
+		partBytes, err := ctx.GetStub().GetState(partID)
 		if err != nil {
 			return err
 		}
 
-		if len(compositeKeyParts) > 1 {
-			returnedPartID := compositeKeyParts[1]
-			part, err := t.ReadPart(ctx, returnedPartID)
-			if err != nil {
-				return err
-			}
-			part.Organization = newOrganization
-			part.TransferDate = time.Now().Format("2006-01-02")
-			partBytes, err := json.Marshal(part)
-			if err != nil {
-				return err
-			}
-			err = ctx.GetStub().PutState(returnedPartID, partBytes)
-			if err != nil {
-				return fmt.Errorf("transfer failed for part %s: %v", returnedPartID, err)
-			}
+		part := new(Part)
+		err = json.Unmarshal(partBytes, part)
+		if err != nil {
+			return err
+		}
+
+		// Change the organization of the part
+		part.Organization = newOrganization
+		part.TransferDate = time.Now().Format("2006-01-02")
+		
+		// Write the part back to the state
+		partBytes, err = json.Marshal(part)
+		if err != nil {
+			return err
+		}
+		err = ctx.GetStub().PutState(partID, partBytes)
+		if err != nil {
+			return err
+		}
+
+		// Delete the old index
+		err = ctx.GetStub().DelState(queryResponse.Key)
+		if err != nil {
+			return err
+		}
+
+		// Create a new index
+		PartIndexKey, err := ctx.GetStub().CreateCompositeKey(manufacturerPartIndex, []string{newOrganization, partID})
+		if err != nil {
+			return err
+		}
+		value := []byte{0x00}
+		err = ctx.GetStub().PutState(PartIndexKey, value)
+		if err != nil {
+			return err
 		}
 	}
 
