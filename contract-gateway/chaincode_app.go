@@ -217,23 +217,17 @@ func transferPartAsync(contract *client.Contract) {
 	fmt.Printf("*** Transaction committed successfully\n")
 }
 
-func transferPartByManufacturerAsync(contract *client.Contract) {
-	fmt.Printf("\n--> Async Submit Transaction: TransferPart By Manufacturer, updates existing part Organization and TransferDate")
+func transferPartByManufacturer(contract *client.Contract, manufacturer string, newOrganization string) {
+    fmt.Printf("\n--> Submit Transaction: TransferPartByManufacturer, transfer parts from manufacturer %s to organization %s\n", VideoCodec, Brand)
 
-	submitResult, commit, err := contract.SubmitAsync("TransferPartByManufacturer", client.WithArguments("VideoCodec.Co", "Brand-Org"))
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
-	}
+    // Call TransferPartByManufacturer function
+    _, err := contract.SubmitTransaction("TransferPartByManufacturer", "VideoCodec.Co", "Brand-Org")
+    if err != nil {
+        fmt.Printf("Failed to Submit transaction: %s\n", err)
+        return
+    }
 
-	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to Brand.Co. \n", string(submitResult))
-	fmt.Println("*** Waiting for transaction commit.")
-
-	if commitStatus, err := commit.Status(); err != nil {
-		panic(fmt.Errorf("failed to get commit status: %w", err))
-	} else if !commitStatus.Successful {
-		panic(fmt.Errorf("transaction %s failed to commit with status: Brand.Co", commitStatus.TransactionID, int32(commitStatus.Code)))
-	}
-	fmt.Printf("*** Transaction committed successfully\n")
+    fmt.Printf("Successfully transferred parts from manufacturer %s to organization %s\n", manufacturer, newOrganization)
 }
 
 // Submit a transaction synchronously, blocking until it has been committed to the ledger.
