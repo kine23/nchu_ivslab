@@ -380,48 +380,99 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 
 	return oldOrganization, nil
 }
-
-// TransferParts transfers parts from one manufacturer to another
 func (t *SmartContract) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
-	// Execute a key range query on all keys starting with 'manufacturer'
-	manufacturerPartResultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(index, []string{manufacturer})
+	// Query the state by the manufacturer
+	resultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey("manufacturer~part", []string{manufacturer})
 	if err != nil {
 		return err
 	}
-	defer manufacturerPartResultsIterator.Close()
+	defer resultsIterator.Close()
 
-	for manufacturerPartResultsIterator.HasNext() {
-		responseRange, err := manufacturerPartResultsIterator.Next()
+	// Iterate through the results
+	for resultsIterator.HasNext() {
+		// Get the current part
+		queryResponse, err := resultsIterator.Next()
 		if err != nil {
 			return err
 		}
 
-		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(responseRange.Key)
+		// Get the part ID from the composite key
+		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(queryResponse.Key)
+		if err != nil {
+			return err
+		}
+		partID := compositeKeyParts[1]
+
+		// Get the part from the state
+		partBytes, err := ctx.GetStub().GetState(partID)
 		if err != nil {
 			return err
 		}
 
-		if len(compositeKeyParts) > 1 {
-			returnedPartID := compositeKeyParts[1]
-			part, err := t.ReadPart(ctx, returnedPartID)
-			if err != nil {
-				return err
-			}
-			part.Organization = newOrganization
-			part.TransferDate = time.Now().Format("2006-01-02")
-			partBytes, err := json.Marshal(part)
-			if err != nil {
-				return err
-			}
-			err = ctx.GetStub().PutState(returnedPartID, partBytes)
-			if err != nil {
-				return fmt.Errorf("transfer failed for part %s: %v", returnedPartID, err)
-			}
+		part := new(Part)
+		err = json.Unmarshal(partBytes, part)
+		if err != nil {
+			return err
+		}
+
+		// Change the organization of the part
+		part.Organization = newOrganization
+		part.TransferDate = time.Now().Format("2006-01-02")
+		
+		// Write the part back to the state
+		partBytes, err = json.Marshal(part)
+		if err != nil {
+			return err
+		}
+		err = ctx.GetStub().PutState(partID, partBytes)
+		if err != nil {
+			return err
 		}
 	}
 
 	return nil
 }
+// TransferParts transfers parts from one manufacturer to another
+//func (t *SmartContract) TransferPartByManufacturer(ctx contractapi.TransactionContextInterface, manufacturer, newOrganization string) error {
+	// Execute a key range query on all keys starting with 'manufacturer'
+//	manufacturerPartResultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(index, []string{manufacturer})
+//	if err != nil {
+//		return err
+//	}
+//	defer manufacturerPartResultsIterator.Close()
+//
+//	for manufacturerPartResultsIterator.HasNext() {
+//		responseRange, err := manufacturerPartResultsIterator.Next()
+//		if err != nil {
+//			return err
+//		}
+//
+//		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(responseRange.Key)
+//		if err != nil {
+//			return err
+//		}
+//
+//		if len(compositeKeyParts) > 1 {
+//			returnedPartID := compositeKeyParts[1]
+//			part, err := t.ReadPart(ctx, returnedPartID)
+//			if err != nil {
+//				return err
+//			}
+//			part.Organization = newOrganization
+//			part.TransferDate = time.Now().Format("2006-01-02")
+//			partBytes, err := json.Marshal(part)
+//			if err != nil {
+//				return err
+//			}
+//			err = ctx.GetStub().PutState(returnedPartID, partBytes)
+//			if err != nil {
+//				return fmt.Errorf("transfer failed for part %s: %v", returnedPartID, err)
+//			}
+//		}
+//	}
+//
+//	return nil
+//}
 
 // constructQueryResponseFromIteratorPart constructs a slice of parts from the resultsIterator
 func constructQueryResponseFromIteratorPart(resultsIterator shim.StateQueryIteratorInterface) ([]*Part, error) {
