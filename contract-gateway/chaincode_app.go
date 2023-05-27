@@ -179,6 +179,7 @@ func getAllParts(contract *client.Contract) {
 	result := formatJSON(evaluateResult)
 	fmt.Printf("*** Result:%s\n", result)
 }
+
 func createPart(contract *client.Contract) {
     partID := "IVSLAB-N23FA0004"
     fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, Organization\n")
@@ -203,20 +204,39 @@ func createPart(contract *client.Contract) {
 // Submit transaction asynchronously, blocking until the transaction has been sent to the orderer, and allowing
 // this thread to process the chaincode response (e.g. update a UI) without waiting for the commit notification
 func transferPartAsync(contract *client.Contract) {
-	fmt.Printf("\n--> Async Submit Transaction: TransferPart, updates existing part Organization and TransferDate")
-	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-N23FA0001", "Brand-Org"))
-	if err != nil {
-		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
-	}
-	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to Brand.Co. \n", string(submitResult))
-	fmt.Println("*** Waiting for transaction commit.")
-	if commitStatus, err := commit.Status(); err != nil {
-		panic(fmt.Errorf("failed to get commit status: %w", err))
-	} else if !commitStatus.Successful {
-		panic(fmt.Errorf("transaction %s failed to commit with status: Brand.Co", commitStatus.TransactionID, int32(commitStatus.Code)))
-	}
-	fmt.Printf("*** Transaction committed successfully\n")
+    partID := "IVSLAB-N23FA0001"
+    fmt.Printf("\n--> Async Submit Transaction: TransferPart, changes existing part Organization and TransferDate")
+    submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments(partID, "Brand-Org"))
+    if err != nil {
+        panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
+    }
+
+    fmt.Printf("\n*** Successfully submitted transaction to transfer %s ownership from %s to Brand.Co. \n", partID, string(submitResult))
+    fmt.Println("*** Waiting for transaction commit.")
+
+    if commitStatus, err := commit.Status(); err != nil {
+        panic(fmt.Errorf("failed to get commit status: %w", err))
+    } else if !commitStatus.Successful {
+        panic(fmt.Errorf("transaction %s failed to commit with status: Brand.Co", commitStatus.TransactionID, int32(commitStatus.Code)))
+    }
+    fmt.Printf("*** Transaction committed successfully\n")
 }
+
+//func transferPartAsync(contract *client.Contract) {
+//	fmt.Printf("\n--> Async Submit Transaction: TransferPart, updates existing part Organization and TransferDate")
+//	submitResult, commit, err := contract.SubmitAsync("TransferPart", client.WithArguments("IVSLAB-N23FA0001", "Brand-Org"))
+//	if err != nil {
+//		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
+//	}
+//	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to Brand.Co. \n", string(submitResult))
+//	fmt.Println("*** Waiting for transaction commit.")
+//	if commitStatus, err := commit.Status(); err != nil {
+//		panic(fmt.Errorf("failed to get commit status: %w", err))
+//	} else if !commitStatus.Successful {
+//		panic(fmt.Errorf("transaction %s failed to commit with status: Brand.Co", commitStatus.TransactionID, int32(commitStatus.Code)))
+//	}
+//	fmt.Printf("*** Transaction committed successfully\n")
+//}
 
 func transferPartsByOrganizationAsync(contract *client.Contract) {
     oldOrganization := "CMOS-Org"
@@ -243,29 +263,31 @@ func transferPartsByOrganizationAsync(contract *client.Contract) {
 
 // Submit a transaction synchronously, blocking until it has been committed to the ledger.
 func createAsset(contract *client.Contract) {
+	assetID := "IVSLAB-PVC23FG0002"
 	fmt.Printf("\n--> Submit Transaction: CreateAsset, creates new asset with ID, MadeBy, MadeIn, SerialNumber, SecurityChip, NetworkChip, CMOSChip, VideoCodecChip\n")
-	_, err := contract.SubmitTransaction("CreateAsset", "IVSLAB-PVC23FG0002", "Brand.Co", "Taiwan", "IVSPN902300AACDC02", "IVSLAB-S23FA0002", "IVSLAB-N23FA0002", "IVSLAB-C23FA0002", "IVSLAB-V23FA0002")
+	_, err := contract.SubmitTransaction("CreateAsset", assetID, "Brand.Co", "Taiwan", "IVSPN902300AACDC02", "IVSLAB-S23FA0002", "IVSLAB-N23FA0002", "IVSLAB-C23FA0002", "IVSLAB-V23FA0002")
 	if err != nil {
 		fmt.Printf("failed to submit transaction: %s\n", err)
 		return
 	}
-
-	fmt.Printf("*** Transaction committed Part created successfully\n")
+	fmt.Printf("*** Transaction committed Asset %s created successfully\n", assetID)
 }
 
 // Submit a transaction synchronously, blocking until it has been committed to the ledger.
 func updateAsset(contract *client.Contract) {
+	assetID := "IVSLAB-PVC23FG0002"
 	fmt.Printf("\n--> Submit Transaction: UpdateAsset, update asset with ID, MadeBy, MadeIn, SerialNumber, SecurityChip, NetworkChip, CMOSChip, VideoCodecChip\n")
-	_, err := contract.SubmitTransaction("UpdateAsset", "IVSLAB-PVC23FG0001", "Brand.Co", "Taiwan", "IVSPN902300AACDC01", "IVSLAB-S23FA0003", "IVSLAB-N23FA0001", "IVSLAB-C23FA0001", "IVSLAB-V23FA0001")
+	_, err := contract.SubmitTransaction("UpdateAsset", assetID, "Brand.Co", "Taiwan", "IVSPN902300AACDC01", "IVSLAB-S23FA0003", "IVSLAB-N23FA0001", "IVSLAB-C23FA0001", "IVSLAB-V23FA0001")
 	if err != nil {
 		fmt.Printf("failed to submit transaction: %s\n", err)
 		return
 	}
-	fmt.Printf("*** Transaction committed Part created successfully\n")
+	fmt.Printf("*** Transaction committed Asset %s updated successfully\n", assetID)
 }
+
 // Evaluate a transaction by partID to query ledger state.
 func readPartByID(contract *client.Contract) {
-	fmt.Printf("\n--> Evaluate Transaction: ReadPart, function returns asset attributes\n")
+	fmt.Printf("\n--> Evaluate Transaction: ReadPart, function returns part attributes\n")
 	evaluateResult, err := contract.EvaluateTransaction("ReadPart", "IVSLAB-S23FA0002")
 	if err != nil {
 		fmt.Printf("failed to submit transaction: %s\n", err)
