@@ -187,7 +187,7 @@ func createPart(contract *client.Contract) {
 		fmt.Printf("failed to submit transaction: %s\n", err)
 		return
 	}
-	fmt.Printf("*** Transaction committed Part created successfully\n")
+	fmt.Printf("*** Transaction committed Part %s\n created successfully\n")
 }
 
 // Submit transaction asynchronously, blocking until the transaction has been sent to the orderer, and allowing
