@@ -88,6 +88,7 @@ func main() {
 //	readPartByID(contract)
 //	queryAssets(contract)
 //	queryAssetsBySerialNumber(contract)
+	getAssetSNHistory(contract)
 //	getAssetHistory(contract)	
 //	exampleErrorHandling(contract)
 }
@@ -295,6 +296,18 @@ func queryAssets(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: QueryAssets, function returns the current assets made by Brand.Co on the ledger")
 	queryString := "{\"selector\":{\"MadeBy\":\"Brand.Co\"}}"
 	evaluateResult, err := contract.EvaluateTransaction("QueryAssets", queryString)
+	if err != nil {
+		fmt.Printf("failed to submit transaction: %s\n", err)
+		return
+	}
+	result := formatJSON(evaluateResult)
+	fmt.Printf("*** Result:%s\n", result)
+}
+
+func getAssetSNHistory(contract *client.Contract) {
+	fmt.Println("\n--> Evaluate Transaction: GetAssetSNHistory, function returns serialnumber the current assets on the ledger")
+
+	evaluateResult, err := contract.EvaluateTransaction("GetAssetHistory", "IVSPN902300AACDC01")
 	if err != nil {
 		fmt.Printf("failed to submit transaction: %s\n", err)
 		return
