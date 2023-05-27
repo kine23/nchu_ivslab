@@ -336,41 +336,6 @@ func queryAssets(contract *client.Contract) {
 	fmt.Printf("*** Result:%s\n", result)
 }
 
-func getAssetSerialNumberHistory(contract *client.Contract) {
-	fmt.Println("\n--> Evaluate Transaction: GetAssetSerialNumberHistory, function returns serialnumber the current assets on the ledger")
-
-	evaluateResult, err := contract.EvaluateTransaction("GetAssetSerialNumberHistory", "IVSPN902300AACDC01")
-	if err != nil {
-		fmt.Printf("failed to submit transaction: %s\n", err)
-		return
-	}
-
-	if len(evaluateResult) == 0 {
-		fmt.Println("No result returned from GetAssetSerialNumberHistory")
-		return
-	}
-
-	result, err := formatJSON(evaluateResult)
-	if err != nil {
-		fmt.Printf("failed to format JSON: %s\n", err)
-		return
-	}
-
-	fmt.Printf("*** Result:%s\n", result)
-}
-
-//func getAssetSerialNumberHistory(contract *client.Contract) {
-//	fmt.Println("\n--> Evaluate Transaction: GetAssetSerialNumberHistory, function returns serialnumber the current assets on the ledger")
-//
-//	evaluateResult, err := contract.EvaluateTransaction("GetAssetSerialNumberHistory", "IVSPN902300AACDC01")
-//	if err != nil {
-//		fmt.Printf("failed to submit transaction: %s\n", err)
-//		return
-//	}
-//	result := formatJSON(evaluateResult)
-//	fmt.Printf("*** Result:%s\n", result)
-//}
-
 func getAssetHistory(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: GetAssetHistory, function returns all the current assets on the ledger")
 	evaluateResult, err := contract.EvaluateTransaction("GetAssetHistory", "IVSLAB-PVC23FG0001")
