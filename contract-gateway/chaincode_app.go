@@ -359,20 +359,6 @@ func getAssetSerialNumberHistory(contract *client.Contract) {
 	fmt.Printf("*** Result:%s\n", result)
 }
 
-func formatJSON(data []byte) (string, error) {
-	if len(data) == 0 {
-		return "", errors.New("no data to format")
-	}
-
-	var prettyJSON bytes.Buffer
-	err := json.Indent(&prettyJSON, data, "", " ")
-	if err != nil {
-		return "", fmt.Errorf("failed to parse JSON: %w", err)
-	}
-
-	return prettyJSON.String(), nil
-}
-
 //func getAssetSerialNumberHistory(contract *client.Contract) {
 //	fmt.Println("\n--> Evaluate Transaction: GetAssetSerialNumberHistory, function returns serialnumber the current assets on the ledger")
 //
@@ -435,12 +421,25 @@ func exampleErrorHandling(contract *client.Contract) {
 		}
 	}
 }
-
 // Format JSON data
-func formatJSON(data []byte) string {
-	var prettyJSON bytes.Buffer
-	if err := json.Indent(&prettyJSON, data, "", "  "); err != nil {
-		panic(fmt.Errorf("failed to parse JSON: %w", err))
+func formatJSON(data []byte) (string, error) {
+	if len(data) == 0 {
+		return "", errors.New("no data to format")
 	}
-	return prettyJSON.String()
+
+	var prettyJSON bytes.Buffer
+	err := json.Indent(&prettyJSON, data, "", " ")
+	if err != nil {
+		return "", fmt.Errorf("failed to parse JSON: %w", err)
+	}
+
+	return prettyJSON.String(), nil
 }
+// Format JSON data
+//func formatJSON(data []byte) string {
+//	var prettyJSON bytes.Buffer
+//	if err := json.Indent(&prettyJSON, data, "", "  "); err != nil {
+//		panic(fmt.Errorf("failed to parse JSON: %w", err))
+//	}
+//	return prettyJSON.String()
+//}
