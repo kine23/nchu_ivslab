@@ -179,16 +179,26 @@ func getAllParts(contract *client.Contract) {
 	result := formatJSON(evaluateResult)
 	fmt.Printf("*** Result:%s\n", result)
 }
-
 func createPart(contract *client.Contract) {
-	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, Organization\n")
-	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-N23FA0004", "Network.Co", "Taiwan", "NetworkChip-v1", "NPN3R1C00AA4", "Network-Org")
-	if err != nil {
-		fmt.Printf("failed to submit transaction: %s\n", err)
-		return
-	}
-	fmt.Printf("*** Transaction committed Part part%d created successfully\n")
+    partID := "IVSLAB-N23FA0004"
+    fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, Organization\n")
+    _, err := contract.SubmitTransaction("CreatePart", partID, "Network.Co", "Taiwan", "NetworkChip-v1", "NPN3R1C00AA4", "Network-Org")
+    if err != nil {
+        fmt.Printf("failed to submit transaction: %s\n", err)
+        return
+    }
+    fmt.Printf("*** Transaction committed Part %s created successfully\n", partID)
 }
+
+//func createPart(contract *client.Contract) {
+//	fmt.Printf("\n--> Submit Transaction: CreatePart, creates new part with PID, Manufacturer, ManufactureLocation, PartName, PartNumber, Organization\n")
+//	_, err := contract.SubmitTransaction("CreatePart", "IVSLAB-N23FA0004", "Network.Co", "Taiwan", "NetworkChip-v1", "NPN3R1C00AA4", "Network-Org")
+//	if err != nil {
+//		fmt.Printf("failed to submit transaction: %s\n", err)
+//		return
+//	}
+//	fmt.Printf("*** Transaction committed Part part%d created successfully\n")
+//}
 
 // Submit transaction asynchronously, blocking until the transaction has been sent to the orderer, and allowing
 // this thread to process the chaincode response (e.g. update a UI) without waiting for the commit notification
