@@ -344,9 +344,46 @@ func getAssetSerialNumberHistory(contract *client.Contract) {
 		fmt.Printf("failed to submit transaction: %s\n", err)
 		return
 	}
-	result := formatJSON(evaluateResult)
+
+	if len(evaluateResult) == 0 {
+		fmt.Println("No result returned from GetAssetSerialNumberHistory")
+		return
+	}
+
+	result, err := formatJSON(evaluateResult)
+	if err != nil {
+		fmt.Printf("failed to format JSON: %s\n", err)
+		return
+	}
+
 	fmt.Printf("*** Result:%s\n", result)
 }
+
+func formatJSON(data []byte) (string, error) {
+	if len(data) == 0 {
+		return "", errors.New("no data to format")
+	}
+
+	var prettyJSON bytes.Buffer
+	err := json.Indent(&prettyJSON, data, "", " ")
+	if err != nil {
+		return "", fmt.Errorf("failed to parse JSON: %w", err)
+	}
+
+	return prettyJSON.String(), nil
+}
+
+//func getAssetSerialNumberHistory(contract *client.Contract) {
+//	fmt.Println("\n--> Evaluate Transaction: GetAssetSerialNumberHistory, function returns serialnumber the current assets on the ledger")
+//
+//	evaluateResult, err := contract.EvaluateTransaction("GetAssetSerialNumberHistory", "IVSPN902300AACDC01")
+//	if err != nil {
+//		fmt.Printf("failed to submit transaction: %s\n", err)
+//		return
+//	}
+//	result := formatJSON(evaluateResult)
+//	fmt.Printf("*** Result:%s\n", result)
+//}
 
 func getAssetHistory(contract *client.Contract) {
 	fmt.Println("\n--> Evaluate Transaction: GetAssetHistory, function returns all the current assets on the ledger")
