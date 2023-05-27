@@ -231,13 +231,13 @@ func (t *SmartContract) ReadPart(ctx contractapi.TransactionContextInterface, pa
 	return &part, nil
 }
 // ReadAsset retrieves an asset from the ledger
-func (t *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, assetID string) (*Asset, error) {
-	assetBytes, err := ctx.GetStub().GetState(assetID)
+func (t *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, serialnumber string) (*Asset, error) {
+	assetBytes, err := ctx.GetStub().GetState(serialnumber)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get asset %s: %v", assetID, err)
+		return nil, fmt.Errorf("failed to get asset %s: %v", serialnumber, err)
 	}
 	if assetBytes == nil {
-		return nil, fmt.Errorf("asset %s does not exist", assetID)
+		return nil, fmt.Errorf("asset %s does not exist", serialnumber)
 	}
 
 	var asset Asset
