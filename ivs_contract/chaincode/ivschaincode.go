@@ -609,6 +609,51 @@ func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionConte
 		Bookmark:            responseMetadata.Bookmark,
 	}, nil
 }
+// GetAssetHistory returns the chain of custody for an asset since issuance.
+
+func (t *SmartContract) GetAssetSNHistory(ctx contractapi.TransactionContextInterface, serialnumber string) ([]HistoryQueryResult, error) {
+	log.Printf("GetAssetHistory: SerialNumber %v", serialnumber)
+
+	resultsIterator, err := ctx.GetStub().GetHistoryForKey(serialnumber)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	var records []HistoryQueryResult
+	for resultsIterator.HasNext() {
+		response, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		var asset Asset
+		if len(response.Value) > 0 {
+			err = json.Unmarshal(response.Value, &asset)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			asset = Asset{
+				SerialNumber: serialnumber,
+			}
+		}
+
+		timestamp, err := ptypes.Timestamp(response.Timestamp)
+		if err != nil {
+			return nil, err
+		}
+
+		record := HistoryQueryResult{
+			TxId:      response.TxId,
+			Timestamp: timestamp,
+			Record:    &asset,
+			IsDelete:  response.IsDelete,
+		}
+		records = append(records, record)
+	}
+	return records, nil
+}
 
 // GetAssetHistory returns the chain of custody for an asset since issuance.
 func (t *SmartContract) GetAssetHistory(ctx contractapi.TransactionContextInterface, assetID string) ([]HistoryQueryResult, error) {
