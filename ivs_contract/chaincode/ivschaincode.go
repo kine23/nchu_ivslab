@@ -611,8 +611,8 @@ func getQueryResultForQueryStringWithPagination(ctx contractapi.TransactionConte
 }
 // GetAssetHistory returns the chain of custody for an asset since issuance.
 
-func (t *SmartContract) GetAssetSNHistory(ctx contractapi.TransactionContextInterface, serialnumber string) ([]HistoryQueryResult, error) {
-	log.Printf("GetAssetHistory: SerialNumber %v", serialnumber)
+func (t *SmartContract) GetAssetSerialNumberHistory(ctx contractapi.TransactionContextInterface, serialnumber string) ([]HistoryQueryResult, error) {
+	log.Printf("GetAssetSerialNumberHistory: SerialNumber %v", serialnumber)
 
 	resultsIterator, err := ctx.GetStub().GetHistoryForKey(serialnumber)
 	if err != nil {
