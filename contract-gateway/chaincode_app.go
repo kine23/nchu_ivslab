@@ -88,7 +88,7 @@ func main() {
 //	readPartByID(contract)
 //	queryAssets(contract)
 //	queryAssetsBySerialNumber(contract)
-	getAssetSNHistory(contract)
+	getAssetSerialNumberHistory(contract)
 //	getAssetHistory(contract)	
 //	exampleErrorHandling(contract)
 }
@@ -336,10 +336,10 @@ func queryAssets(contract *client.Contract) {
 	fmt.Printf("*** Result:%s\n", result)
 }
 
-func getAssetSNHistory(contract *client.Contract) {
-	fmt.Println("\n--> Evaluate Transaction: GetAssetSNHistory, function returns serialnumber the current assets on the ledger")
+func getAssetSerialNumberHistory(contract *client.Contract) {
+	fmt.Println("\n--> Evaluate Transaction: GetAssetSerialNumberHistory, function returns serialnumber the current assets on the ledger")
 
-	evaluateResult, err := contract.EvaluateTransaction("GetAssetHistory", "IVSPN902300AACDC01")
+	evaluateResult, err := contract.EvaluateTransaction("GetAssetSerialNumberHistory", "IVSPN902300AACDC01")
 	if err != nil {
 		fmt.Printf("failed to submit transaction: %s\n", err)
 		return
