@@ -383,9 +383,9 @@ func (t *SmartContract) TransferPart(ctx contractapi.TransactionContextInterface
 	return oldOrganization, nil
 }
 // TransferPartsByOrganization transfers all parts from one organization to another
-func (t *SmartContract) TransferPartsByOrganization(ctx contractapi.TransactionContextInterface, oldOrganization, newOrganization string) error {
+func (t *SmartContract) TransferPartsByOrganization(ctx contractapi.TransactionContextInterface, organization, newOrganization string) error {
 	// Query the state by the old organization
-	resultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(manufacturerPartIndex, []string{oldOrganization})
+	resultsIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(manufacturerPartIndex, []string{organization})
 	if err != nil {
 		return err
 	}
